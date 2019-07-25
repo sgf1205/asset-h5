@@ -1,0 +1,30 @@
+{
+    "code":200,
+    "message":"获取成功",
+    "data":[
+        {
+            "retiring_id":1,
+            "retiring_number":"TK20180618033",
+            "retiring_time":"1529254718034",
+            "handle_name":"张三",
+            "warehouse_name":"北区仓库",
+            "retiring_remarks":"资产退库，没有问题~~"
+        },
+        {
+            "retiring_id":2,
+            "retiring_number":"TK20180618012",
+            "retiring_time":"1529254718034",
+            "handle_name":"张伟",
+            "warehouse_name":"北区仓库",
+            "retiring_remarks":"资产退库，没有问题~~"
+        },
+        {
+            "retiring_id":3,
+            "retiring_number":"TK20180618004",
+            "retiring_time":"1529254718034",
+            "handle_name":"刘莉",
+            "warehouse_name":"北区仓库",
+            "retiring_remarks":"资产退库，没有问题~~"
+        }
+    ]
+}
