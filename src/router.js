@@ -114,6 +114,13 @@ const routeMaps = [
             hidden:false,
             component:()=>import('@/views/sys/organ'),
             meta:{ title:"机构管理"}
+          },
+          {
+            path:"user",
+            name:"user",
+            hidden:false,
+            component:()=>import('@/views/sys/user'),
+            meta:{ title:"用户管理"}
           }
         ]
       },

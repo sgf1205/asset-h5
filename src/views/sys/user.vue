@@ -1,12 +1,8 @@
 <template>
   <div>
     <el-row :gutter="10">
-      <el-col :span="8" height="90%">
-        <el-tree ref="organTree" :data="organs" node-key="id" :default-expanded-keys="[clickNode.id]" :props="{label:'name'}" @node-click="handleNodeClick">
-
-        </el-tree>
-      </el-col>
-      <el-col :span="16">
+ 
+      <el-col :span="24">
         <el-card class="box-card">
           <!-- 按钮组 + 搜索栏 -->
           <el-row>
@@ -16,17 +12,19 @@
                 type="primary"
                 :size="$store.state.size"
                 icon="el-icon-plus"
-                @click="addOrganForm={};saveBtnDisabed=false;addDialogVisible=true;dialogTitle='新增机构'"
-              >新增机构</el-button>
-              <span style="margin-left:10px">当前组织：{{clickNode.name}}</span>
+                @click="addOrganForm={};saveBtnDisabed=false;addDialogVisible=true;dialogTitle='新增用户'"
+              >新增用户</el-button>
+              
             </el-col>
           
           </el-row>
 
           <!-- 数据表格 -->
-          <el-table :data="clickNodeOrgans" border style="width: 100%;margin:10px 0;">
-            <el-table-column align="center" prop="name" label="名称" ></el-table-column>
-            <el-table-column align="center" prop="code" label="编码" ></el-table-column>
+          <el-table :data="users" border style="width: 100%;margin:10px 0;">
+            <el-table-column align="center" prop="name" label="姓名" ></el-table-column>
+            <el-table-column align="center" prop="account" label="登陆账号" ></el-table-column>
+            <el-table-column align="center" prop="organId" label="所属机构" ></el-table-column>
+            <el-table-column align="center" prop="role" label="角色" ></el-table-column>
             <el-table-column fixed="right" label="操作" width="100">
               <template slot-scope="scope">
                 <el-button @click="del(scope.row)" type="text" :size="$store.state.size">删除</el-button>
@@ -38,20 +36,23 @@
       </el-col>
     </el-row
 
-    <!-- 新增机构 -->
+    <!-- 新增用户 -->
     <el-dialog :title="dialogTitle" :visible.sync="addDialogVisible" width="40%">
-      <el-form ref="form" :model="addOrganForm" label-width="80px" :rules="rules">
-        <el-form-item label="上级机构">
-          <el-input v-model="clickNode.name" :disabled="true"></el-input>
+      <el-form ref="form" :model="addForm" label-width="80px" :rules="rules">
+        <el-form-item label="用户姓名">
+          <el-input v-model="addForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="机构名称" prop="name">
-          <el-input v-model="addOrganForm.name"></el-input>
+        <el-form-item label="登陆账号" prop="name">
+          <el-input v-model="addForm.account"></el-input>
+        </el-form-item>        
+        <el-form-item label="所属机构" prop="organ">
+          <el-input v-model="addForm.organ"></el-input>
         </el-form-item>
-        <el-form-item label="机构编码">
-          <el-input v-model="addOrganForm.code"></el-input>
+        <el-form-item label="角色"  prop="role">
+          <el-input v-model="addForm.role"></el-input>
         </el-form-item>
         <el-row>
-          <el-button :size="$store.state.size" @click="saveOrgan" :disabled="saveBtnDisabed">保存</el-button>
+          <el-button :size="$store.state.size" @click="save" :disabled="saveBtnDisabed">保存</el-button>
           <el-button type="danger" :size="$store.state.size" @click="addDialogVisible=false">取消</el-button>
         </el-row>
       </el-form>
@@ -60,7 +61,6 @@
 </template>
 <script>
 
-import tree from '@/libs//tree'
 export default {
   data: function() {
     return {
@@ -70,11 +70,9 @@ export default {
       searchDate: "",
       addDialogVisible: false,
       saveBtnDisabed: false,
-      addOrganForm: {},
-      organs: [],
-      clickNodeOrgans:[],
-      clickNode:{id:"0"},
-      dialogTitle:"新增机构"
+      addForm: {},
+      users: [],
+      dialogTitle:"新增用户"
     };
   },
 
@@ -82,40 +80,19 @@ export default {
     
     load() {
         let _self=this;
-        this.$api.get("/sys/organ/list").then(res=>{
+        this.$api.get("/user/list").then(res=>{
             if(res.data.code==0 && res.data.data){
-
-                // 属性配置设置
-                let attr = {
-                  id: 'id',
-                  parendId: 'pid',
-                  name: 'name',
-                  rootId: 0
-                };
-                res.data.data.push({id:0,name:"组织机构"});
-                let treeData=tree.toTreeData(res.data.data,attr)
-                _self.organs=treeData;
+                _self.users=res.data.data;
             }
         })
     },
-    handleNodeClick(node){
-      let _self=this;
-      _self.clickNode=node;
-        this.$api.get("/sys/organ/list?id="+node.id).then(res=>{
-          if(res.data.code==0){
-            _self.clickNodeOrgans=res.data.data;
-            
-          }
-        });
-    },
-    saveOrgan() {
+    save() {
       let _self = this;
       this.$refs["form"].validate(valid => {
         if (valid) {
           _self.saveBtnDisabed = true;
-          _self.addOrganForm.pid=_self.clickNode.id;
           _self.$api
-            .post("/sys/organ/save", _self.addOrganForm)
+            .post("/user/save", _self.addForm)
             .then(res => {
               if (res.data.code == 0) {
                 _self.$message({
@@ -124,7 +101,6 @@ export default {
                 });
                 this.addDialogVisible=false;
                 this.load();
-                _self.handleNodeClick(_self.clickNode)
               } else {
                 _self.$message({
                   type: "error",
@@ -147,20 +123,18 @@ export default {
                 type: 'warning'
             }).then(() => {
                 //要删除的ID
-                this.$api.post("/sys/organ/delete",{id:row.id}).then(res=>{
+                this.$api.post("/user/delete",{id:row.id}).then(res=>{
                     if(res.data.code==0){
                       this.$message({
                         type: 'success',
                         message: '删除成功!'
                       });
-                      this.load();
-                      this.handleNodeClick(this.clickNode)
                     }
                 })
             });
     },
     edit(row){
-      this.dialogTitle='修改机构';
+      this.dialogTitle='修改用户';
       this.addOrganForm=row;
       this.addDialogVisible=true;
       this.saveBtnDisabed=false;
