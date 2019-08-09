@@ -59,7 +59,15 @@ export default {
                 this.$api.get("/login").then((res)=>{
                     this.$message.success('登陆成功');
                     this.$router.push({name:"Main"});            
-                })
+                }).catch((err)=>{
+                    
+                    if(process.env.NODE_ENV=='development'){
+                        this.$message.success('开发环境登陆成功');
+                        this.$router.push({name:"Main"});     
+                    }else{
+                        throw new Error('请求报错:'+err);
+                    }
+                });
           } else {
             this.$message.error('登陆失败');
             return false;
