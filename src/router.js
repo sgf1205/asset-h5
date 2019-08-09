@@ -121,6 +121,13 @@ const routeMaps = [
             hidden:false,
             component:()=>import('@/views/sys/user'),
             meta:{ title:"用户管理"}
+          },
+          {
+            path:"roleConfig",
+            name:"roleConfig",
+            hidden:false,
+            component:()=>import('@/views/sys/roleConfig'),
+            meta:{ title:"角色配置"}
           }
         ]
       },
