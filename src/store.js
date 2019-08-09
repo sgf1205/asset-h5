@@ -6,6 +6,10 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     size:'small',
+    roles:[
+      {id:1,name:"系统管理员"},
+      {id:2,name:"普通管理员"}
+    ],
     assetsSource:["购入","自建","捐赠","租赁","其他"],
     classesData:[   //资产分类数据
       {

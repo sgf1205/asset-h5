@@ -7,16 +7,8 @@
             default-active="1"
             @select="selectRoleHandler"
             >
-           
-              
-            <el-menu-item index="1">
-             
-              系统管理员
-            </el-menu-item>
-      
-            <el-menu-item index="2">
-
-              普通管理员
+            <el-menu-item  v-for="role in $store.state.roles" :key="role.id" :index="role.id">
+              {{role.name}}
             </el-menu-item>
           </el-menu>
   
@@ -36,18 +28,13 @@
             </el-col>
           
           </el-row>
-
-          <!-- 数据表格 -->
-          <el-table :data="menus" border style="width: 100%;margin:10px 0;">
-            <el-table-column align="center" prop="name" label="名称" ></el-table-column>
-            <el-table-column align="center" prop="code" label="编码" ></el-table-column>
-            <el-table-column fixed="right" label="操作" width="100">
-              <template slot-scope="scope">
-                <el-button @click="del(scope.row)" type="text" :size="$store.state.size">删除</el-button>
-                <el-button type="text" :size="$store.state.size" @click="edit(scope.row)">编辑</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+          <el-checkbox-group v-model="checkList">
+            <el-checkbox label="复选框 A"></el-checkbox>
+            <el-checkbox label="复选框 B"></el-checkbox>
+            <el-checkbox label="复选框 C"></el-checkbox>
+            <el-checkbox label="禁用" disabled></el-checkbox>
+            <el-checkbox label="选中且禁用" disabled></el-checkbox>
+          </el-checkbox-group>
         </el-card>
       </el-col>
     </el-row>
@@ -92,8 +79,13 @@ export default {
         })
     },
     selectRoleHandler(roleId,indexPath){
-      console.log("roleId:"+roleId)
-
+      let _self=this;
+      this.$store.state.roles.forEach(role =>{
+        if(role.id==roleId){
+          _self.selectRole=role.name
+          return false;
+        }
+      })
        //this.selectRole=indexPath
 
     },
