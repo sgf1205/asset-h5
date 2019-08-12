@@ -4,10 +4,10 @@
       <el-col :span="8" height="90%" align="center">
   
           <el-menu
-            default-active="1"
+            :default-active="selectRole.id.toString()"
             @select="selectRoleHandler"
             >
-            <el-menu-item  v-for="role in $store.state.roles" :key="role.id" :index="role.id">
+            <el-menu-item  v-for="role in $store.state.roles" :key="role.id" :index="role.id.toString()">
               {{role.name}}
             </el-menu-item>
           </el-menu>
@@ -22,19 +22,21 @@
               <el-button
                 type="primary"
                 :size="$store.state.size"
-                icon="el-icon-plus"
+                @click="saveConfig"
               >保存配置</el-button>
-              <span style="margin-left:10px">当前角色：{{selectRole}}</span>
+              <span style="margin-left:10px">当前角色：{{selectRole.name}}</span>
             </el-col>
           
           </el-row>
-          <el-checkbox-group v-model="checkList">
-            <el-checkbox label="复选框 A"></el-checkbox>
-            <el-checkbox label="复选框 B"></el-checkbox>
-            <el-checkbox label="复选框 C"></el-checkbox>
-            <el-checkbox label="禁用" disabled></el-checkbox>
-            <el-checkbox label="选中且禁用" disabled></el-checkbox>
-          </el-checkbox-group>
+          <el-row style="margin-top:20px">
+             <el-tree 
+                ref="tree" 
+                :data="menus" 
+                node-key="name"
+                :props="{id:'name'}" 
+                :show-checkbox="true"
+                :default-expand-all="true"/>
+          </el-row>
         </el-card>
       </el-col>
     </el-row>
@@ -45,16 +47,16 @@
 <script>
 
 import tree from '@/libs//tree'
-import organSelect from './OrganSelect'
 export default {
-  components: {
-    'organ-select':organSelect
-  },
   data: function() {
     return {
       
-      selectRole: "系统管理员",
-      menus:[]
+      selectRole: this.$store.state.roles[0],
+      routes:[],
+      menus:[],
+      roleMenus:[]
+     
+      
     };
   },
 
@@ -62,68 +64,66 @@ export default {
     
     load() {
         let _self=this;
-        this.$api.get("/sys/organ/list").then(res=>{
-            if(res.data.code==0 && res.data.data){
+        let routes = this.routes = this.$router.options.routes[1].children.filter(v=>v.hidden==false);
+        
 
-                // 属性配置设置
-                let attr = {
-                  id: 'id',
-                  parendId: 'pid',
-                  name: 'name',
-                  rootId: 0
-                };
-                res.data.data.push({id:0,name:"组织机构"});
-                let treeData=tree.toTreeData(res.data.data,attr)
-                _self.organs=treeData;
-            }
+        let change=function(route){
+           let menu={};
+           menu.name=route.name;
+           menu.label=route.meta.title;
+           if(route.children){
+             menu.children=[];
+             route.children.forEach(r=>menu.children.push(change(r)))
+           }
+          return menu;
+        }
+
+        routes.forEach(route => {
+          _self.menus.push(change(route));
         })
+
+        //this.loadConfig();
+
+        
+    },
+    loadConfig(){
+        let _self=this;
+        this.$refs.tree.setCheckedKeys([]);
+        this.$api.get("/role/list?roleId="+this.selectRole.id).then(res=>{
+          if(res.data.code==0){
+              let configMenus=[];
+              res.data.data.forEach(config=>{
+                configMenus.push(config.menu);
+              })
+              _self.$refs.tree.setCheckedKeys(configMenus);
+          }
+        });
     },
     selectRoleHandler(roleId,indexPath){
       let _self=this;
       this.$store.state.roles.forEach(role =>{
         if(role.id==roleId){
-          _self.selectRole=role.name
+          _self.selectRole=role
+          this.loadConfig();
           return false;
         }
       })
-       //this.selectRole=indexPath
+      
 
     },
-    saveOrgan() {
-      let _self = this;
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          _self.saveBtnDisabed = true;
-          _self.addOrganForm.pid=_self.clickNode.id;
-          _self.$api
-            .post("/sys/organ/save", _self.addOrganForm)
-            .then(res => {
-              if (res.data.code == 0) {
-                _self.$message({
-                  type: "success",
-                  message: "添加成功!"
-                });
-                this.addDialogVisible=false;
-                this.load();
-                _self.handleNodeClick(_self.clickNode)
-              } else {
-                _self.$message({
-                  type: "error",
-                  message: "添加失败!"
-                });
-                _self.saveBtnDisabed = false;
-              }
-            })
-            .catch(err => {
-              _self.saveBtnDisabed = false;
-              throw new Error("请求报错");
-            });
-        }
+    saveConfig() {
+      let menus=this.$refs.tree.getCheckedNodes().map(node=>node.name)
+      this.$api.post("/role/config",{roleId:this.selectRole.id,roleName:this.selectRole.name,menus:menus}).then(res=>{
+          this.$message({
+            type: "success",
+            message: "角色配置成功!"
+          });
       });
     }
   },
-  created() {
-      this.load();
+  mounted(){
+     this.load();
+    this.loadConfig();
   }
 };
 </script>
