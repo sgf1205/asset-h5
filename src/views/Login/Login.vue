@@ -53,16 +53,22 @@ export default {
       submitForm(formName) {
 
         
-
+        let _self=this;
         this.$refs[formName].validate((valid) => {
           if (valid) {
-                this.$api.get("/login").then((res)=>{
-                    this.$message.success('登陆成功');
-                    this.$router.push({name:"Main"});            
+                this.$api.get("/login",_self.ruleForm).then((res)=>{
+                    if(res.code==0){
+                        let user=res.data;
+                        sessionStorage.token=user.token;
+                        sessionStorage.roleId=user.roleId;
+                        this.$message.success('登陆成功');
+                        this.$router.push({name:"Main"});     
+                    }       
                 }).catch((err)=>{
-                    
                     if(process.env.NODE_ENV=='development'){
                         this.$message.success('开发环境登陆成功');
+                        sessionStorage.roleId=0;
+                        sessionStorage.username=_self.ruleForm.username;
                         this.$router.push({name:"Main"});     
                     }else{
                         throw new Error('请求报错:'+err);

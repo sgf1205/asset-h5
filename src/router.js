@@ -3,6 +3,9 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+
+
+
 const routeMaps = [
   {
     path: '/',
@@ -150,8 +153,19 @@ const routeMaps = [
   }
 ];
 
-export default new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
+var router = new Router({
   routes: routeMaps
+  // mode: 'history'
 })
+
+//需要登录才能访问/message路由,如果没有登录就调回到登录页面
+router.beforeEach((to, from, next) => {
+
+  if (sessionStorage['user']!=undefined || to.path.indexOf('/')==0) {
+    next()
+  } else {
+      next({ path: '/' })
+  }
+})
+
+export default router

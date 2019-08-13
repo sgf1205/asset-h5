@@ -29,7 +29,7 @@
               <template slot-scope="scope">
                 <el-button @click="del(scope.row)" type="text" :size="$store.state.size">删除</el-button>
                 <el-button type="text" :size="$store.state.size" @click="edit(scope.row)">编辑</el-button>
-                <el-button type="text" :size="$store.state.size" @click="rest(scope.row)">重置密码</el-button>
+                <el-button type="text" :size="$store.state.size" @click="restPwd(scope.row)">重置密码</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -90,8 +90,8 @@ export default {
     load() {
         let _self=this;
         this.$api.get("/user/list").then(res=>{
-            if(res.data.code==0 && res.data.data){
-                _self.users=res.data.data;
+            if(res.code==0 && res.data){
+                _self.users=res.data;
             }
         })
     },
@@ -103,7 +103,7 @@ export default {
           _self.$api
             .post("/user/save", _self.addForm)
             .then(res => {
-              if (res.data.code == 0) {
+              if (res.code == 0) {
                 _self.$message({
                   type: "success",
                   message: "添加成功!"
@@ -133,7 +133,7 @@ export default {
             }).then(() => {
                 //要删除的ID
                 this.$api.post("/user/delete",{id:row.id}).then(res=>{
-                    if(res.data.code==0){
+                    if(res.code==0){
                       this.$message({
                         type: 'success',
                         message: '删除成功!'
@@ -150,7 +150,7 @@ export default {
     },
     restPwd(row){
        this.$api.post("/user/restPwd",{id:row.id}).then(res=>{
-                    if(res.data.code==0){
+                    if(res.code==0){
                       this.$message({
                         type: 'success',
                         message: '重置密码成功!'

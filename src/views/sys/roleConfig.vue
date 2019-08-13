@@ -90,9 +90,9 @@ export default {
         let _self=this;
         this.$refs.tree.setCheckedKeys([]);
         this.$api.get("/role/list?roleId="+this.selectRole.id).then(res=>{
-          if(res.data.code==0){
+          if(res.code==0){
               let configMenus=[];
-              res.data.data.forEach(config=>{
+              res.data.forEach(config=>{
                 configMenus.push(config.menu);
               })
               _self.$refs.tree.setCheckedKeys(configMenus);

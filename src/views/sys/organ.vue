@@ -87,7 +87,7 @@ export default {
     load() {
         let _self=this;
         this.$api.get("/sys/organ/list").then(res=>{
-            if(res.data.code==0 && res.data.data){
+            if(res.code==0 && res.data){
 
                 // 属性配置设置
                 let attr = {
@@ -96,8 +96,8 @@ export default {
                   name: 'name',
                   rootId: 0
                 };
-                res.data.data.push({id:0,name:"组织机构"});
-                let treeData=tree.toTreeData(res.data.data,attr)
+                res.data.push({id:0,name:"组织机构"});
+                let treeData=tree.toTreeData(res.data,attr)
                 _self.organs=treeData;
             }
         })
@@ -106,8 +106,8 @@ export default {
       let _self=this;
       _self.clickNode=node;
         this.$api.get("/sys/organ/list?id="+node.id).then(res=>{
-          if(res.data.code==0){
-            _self.clickNodeOrgans=res.data.data;
+          if(res.code==0){
+            _self.clickNodeOrgans=res.data;
             
           }
         });
@@ -121,7 +121,7 @@ export default {
           _self.$api
             .post("/sys/organ/save", _self.addOrganForm)
             .then(res => {
-              if (res.data.code == 0) {
+              if (res.code == 0) {
                 _self.$message({
                   type: "success",
                   message: "添加成功!"
@@ -152,7 +152,7 @@ export default {
             }).then(() => {
                 //要删除的ID
                 this.$api.post("/sys/organ/delete",{id:row.id}).then(res=>{
-                    if(res.data.code==0){
+                    if(res.code==0){
                       this.$message({
                         type: 'success',
                         message: '删除成功!'

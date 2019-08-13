@@ -35,7 +35,7 @@ export default {
     load() {
       let _self = this;
       this.$api.get("/sys/organ/list").then(res => {
-        if (res.data.code == 0 && res.data.data) {
+        if (res.code == 0 && res.data) {
           // 属性配置设置
           let attr = {
             id: "id",
@@ -43,8 +43,8 @@ export default {
             name: "name",
             rootId: 0
           };
-          //res.data.data.push({ id: 0, name: "组织机构"});
-          let treeData = tree.toTreeData(res.data.data, attr);
+          //res.data.push({ id: 0, name: "组织机构"});
+          let treeData = tree.toTreeData(res.data, attr);
           _self.organs = treeData;
         }
       });
