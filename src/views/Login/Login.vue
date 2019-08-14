@@ -60,10 +60,12 @@ export default {
                     if(res.code==0){
                         let user=res.data;
                         sessionStorage.token=user.token;
-                        sessionStorage.roleId=user.roleId;
+                        //sessionStorage.roleId=user.roleId;
                         this.$message.success('登陆成功');
                         this.$router.push({name:"Main"});     
-                    }       
+                    }else{
+                        this.$message.error(res.msg);
+                    }    
                 }).catch((err)=>{
                     if(process.env.NODE_ENV=='development'){
                         this.$message.success('开发环境登陆成功');

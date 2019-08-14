@@ -85,7 +85,7 @@
           <el-submenu index="2">
             <template slot="title">
               <i class="el-icon-admin"></i>
-              <span>管理员</span>
+              <span>{{currentUserName}}</span>
             </template>
             <el-menu-item index="Password" :route="{name:'Password'}">
               <i class="el-icon-password"></i>
@@ -130,7 +130,7 @@ export default {
         .post("/logout")
         .then(res => {
           if (res.code == 0) {
-            delete sessionStorage.roleId;
+            //delete sessionStorage.roleId;
             delete sessionStorage.token;
             _this.$router.push({ path: "/" });
           } else {
@@ -139,7 +139,7 @@ export default {
         })
         .catch(err => {
           if (process.env.NODE_ENV == "development") {
-            delete sessionStorage.roleId;
+            //delete sessionStorage.roleId;
             delete sessionStorage.token;
             _this.$router.push({ path: "/" });
           } else {
@@ -148,30 +148,44 @@ export default {
         });
     }
   },
-  created() {
-    let roleId = sessionStorage.roleId;
-    if (roleId != 0) {
-        this.$api.get("/menus").then(res=>{
-            if(res.code==0){
-                let menus=res.data;
-                this.routes = this.$router.options.routes[1].children.filter(
-                    v => menus.indexOf(v.name) != -1
-                );
-                this.routes.forEach(route => {
-                    if (route.children) {
-                    route.children = route.children.filter(
-                        v => menus.indexOf(v.name) != -1
-                    );
-                    }
-                });
-            }
-        })
-      
-    } else {  //超级管理员
-      this.routes = this.$router.options.routes[1].children.filter(v =>v.hidden!=true);
+  computed:{
+    currentUserName(){
+      return this.$store.state.currentUser.name;
     }
-
-    this.activeNav = this.$route.name;
+  },
+  created(){
+    let _self=this;
+    this.$api.get("/getCurrentUser").then(res =>{
+      if(res.code==0){
+        let user=res.data
+        _self.$store.commit("saveCurrentUser",user);
+        if (user.roleId != 0) {
+            this.$api.get("/menus").then(res=>{
+                if(res.code==0){
+                    let menus=res.data;
+                    let allMenus=_self.$router.options.routes[1].children;
+                    allMenus.forEach(m=>{
+                      if(menus.indexOf(m.name)!=-1){
+                        _self.routes.push(m);
+                      }else if(m.children){
+                        let subMenus=m.children.filter(
+                              v => menus.indexOf(v.name) != -1
+                          );
+                        if(subMenus.length>0){
+                          let _m=Object.assign({}, m)
+                          _m.children=subMenus
+                          _self.routes.push(_m);
+                        }
+                      }
+                    })
+                }
+            })
+        } else {  //超级管理员
+          this.routes = _self.$router.options.routes[1].children.filter(v =>v.hidden!=true);
+        }
+        this.activeNav = _self.$route.name;
+      }
+    })
   }
 };
 </script>
