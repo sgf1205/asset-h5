@@ -181,7 +181,7 @@ export default {
                 }
             })
         } else {  //超级管理员
-          this.routes = _self.$router.options.routes[1].children.filter(v =>v.hidden!=true);
+          this.routes = _self.$router.options.routes[1].children.filter(v =>v.name=='Manage');
         }
         this.activeNav = _self.$route.name;
       }
@@ -189,7 +189,7 @@ export default {
       if(process.env.NODE_ENV=='development'){
         let user={roleId:0,name:"超级管理员"}
         this.$store.commit("saveCurrentUser",user);
-        this.routes = _self.$router.options.routes[1].children.filter(v =>v.hidden!=true);
+        this.routes = _self.$router.options.routes[1].children.filter(v =>v.name=='Manage');
       } 
     })
   }

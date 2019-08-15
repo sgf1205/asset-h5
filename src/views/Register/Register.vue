@@ -39,33 +39,30 @@
                                 <da-assets-status :status="scope.row.status"></da-assets-status>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="bar_code" label="资产条码" width="140"> </el-table-column>
                         <el-table-column prop="name" label="资产名称" width="150"> </el-table-column>
-                        <el-table-column prop="type_id" label="资产类型" width="150"> </el-table-column>
+                        <el-table-column prop="classesName" label="资产类型" width="150"> </el-table-column>
                         <el-table-column prop="specification" label="规格型号" width="100"> </el-table-column>
-                        <el-table-column prop="sn" label="产品序列" width="100"> </el-table-column>
+                        <el-table-column prop="sn" label="序列号" width="100"> </el-table-column>
                         <el-table-column align="center" prop="metering" label="计量单位" width="80"> </el-table-column>
                         <el-table-column prop="money" label="金额" width="100">
                             <template slot-scope="scope">
                                 {{scope.row.money|currency}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="company" label="使用公司" width="100"> </el-table-column>
-                        <el-table-column prop="department" label="使用部门" width="100"> </el-table-column>
-                        <el-table-column prop="purchase_time" label="购买时间" width="120">
+                        <el-table-column prop="purchaseTime" label="购买时间" width="120">
                             <template slot-scope="scope">
-                                {{scope.row.purchase_time|date}}
+                                {{scope.row.purchaseTime|date}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="user_id" label="使用人" width="100"> </el-table-column>
-                        <el-table-column prop="manager_id" label="管理员" width="100"> </el-table-column>
-                        <el-table-column prop="address" label="存放地点" width="100"> </el-table-column>
-                        <el-table-column prop="duration_use" label="使用期限" width="120"> </el-table-column>
-                        <el-table-column prop="source" label="来源" width="80"> </el-table-column>
+                        <el-table-column prop="registerTime" label="登记时间" width="120">
+                            <template slot-scope="scope">
+                                {{scope.row.registerTime|date}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="registerUserName" label="登记人" width="120"></el-table-column>
                         <el-table-column fixed="right" label="操作" width="100">
                             <template slot-scope="scope">
                                 <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
-                                <el-button type="text" :size="$store.state.size" @click="editRegister(scope.row)">编辑</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -86,11 +83,15 @@
                 <el-tabs tab-position="left">
                     <el-tab-pane label="基本信息">
                         <el-row>
-                            <el-col :span="8">
-                                <el-form-item label="资产条码">
-                                    <el-input v-model="addRegisterData.barCode" disabled placeholder="自动生成"></el-input>
-                                </el-form-item>
+                            <el-col v-if="showModel" :span="8" align="center">
+                                <vue-qr 
+                                    :size="150"
+                                    :margin="0"
+                                    :auto-color="true"
+                                    :dot-scale="1"
+                                    :text="addRegisterData.code" />
                             </el-col>
+                            
                             <el-col :span="8">
                                 <el-form-item label="资产名称">
                                     <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
@@ -98,11 +99,7 @@
                             </el-col>
                             <el-col :span="8">
                                 <el-form-item label="资产类型">
-                                    <el-select v-model="addRegisterData.typeId" placeholder="资产类型">
-                                        <el-option value="资产类型1">资产类型1</el-option>
-                                        <el-option value="资产类型2">资产类型2</el-option>
-                                        <el-option value="资产类型3">资产类型3</el-option>
-                                    </el-select>
+                                    <classes-select v-model="addRegisterData.classesId"></classes-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="8">
@@ -126,24 +123,6 @@
                                 </el-form-item>
                             </el-col>
                             <el-col :span="8">
-                                <el-form-item label="使用机构">
-                                    <el-select v-model="addRegisterData.company" placeholder="使用机构">
-                                        <el-option value="机构1">机构1</el-option>
-                                        <el-option value="机构2">机构2</el-option>
-                                        <el-option value="机构3">机构3</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用部门">
-                                    <el-select v-model="addRegisterData.department" placeholder="使用部门">
-                                        <el-option value="部门1">部门1</el-option>
-                                        <el-option value="部门2">部门2</el-option>
-                                        <el-option value="部门3">部门3</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
                                 <el-form-item label="购买时间">
                                     <el-date-picker
                                     v-model="addRegisterData.purchaseTime"
@@ -153,60 +132,12 @@
                                     </el-date-picker>
                                 </el-form-item>
                             </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用人">
-                                    <el-input v-model="addRegisterData.user" placeholder="使用人"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <!--
-                            <el-col :span="8">
-                                <el-form-item label="管理员">
-                                    <el-select v-model="addRegisterData.manager_id" placeholder="管理员">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
                            
-                            <el-col :span="8">
-                                <el-form-item label="存地点">
-                                    <el-input v-model="addRegisterData.user" placeholder="使用人"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用期限">
-                                    <el-input v-model="addRegisterData.duration_use" placeholder="使用期限(月)"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="来源">
-                                    <el-select v-model="addRegisterData.source" placeholder="来源">
-                                        <el-option :value="v" v-for="v in $store.state.assetsSource" :key="v">{{v}}</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                             -->
                             <el-col :span="16">
                                 <el-form-item label="备注">
-                                    <el-input type="textarea" v-model="addRegisterData.remarks" placeholder="备注"></el-input>
+                                    <el-input type="textarea" v-model="addRegisterData.remark" placeholder="备注"></el-input>
                                 </el-form-item>
                             </el-col>
-                            <!--
-                            <el-col :span="8">
-                                <el-form-item label="资产照片">
-                                    <el-upload
-                                    class="assets-uploader"
-                                    action="https://jsonplaceholder.typicode.com/posts/"
-                                    :show-file-list="false"
-                                    :on-success="handleAvatarSuccess"
-                                    :before-upload="beforeAvatarUpload">
-                                        <img v-if="addRegisterData.image" :src="addRegisterData.image" class="avatar">
-                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                    </el-upload>
-                                </el-form-item>
-                            </el-col>
-                            -->
                         </el-row>
                     </el-tab-pane>
                     <el-tab-pane label="维保信息">
@@ -229,648 +160,53 @@
                             <el-col :span="12">
                                 <el-form-item label="维保到期">
                                     <el-date-picker
-                                    v-model="addRegisterData.expiry_time"
+                                    v-model="addRegisterData.expiryTime"
                                     type="date"
                                     style="width:100%;"
                                     placeholder="维保到期时间">
                                     </el-date-picker>
                                 </el-form-item>
                             </el-col>
-                            <!--
+
                             <el-col :span="24">
                                 <el-form-item label="维保说明">
                                     <el-input type="textarea" v-model="addRegisterData.explain" placeholder="维保说明"></el-input>
                                 </el-form-item>
                             </el-col>
-                            -->
+
                         </el-row>
                     </el-tab-pane>
                 </el-tabs>
             </el-form>
             <div slot="footer" class="dialog-footer">
+                <el-button v-if="!showModel" type="primary" @click="addRegister">确 定</el-button>
                 <el-button @click="addDialogTableVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addRegister">确 定</el-button>
-            </div>
-        </el-dialog>
-
-        <!-- 资产编辑 弹窗 -->
-        <el-dialog title="资产编辑" width="70%" :visible.sync="editDialogTableVisible">
-            <el-form ref="addform" :model="editRegisterData" label-width="80px" :size="$store.state.size">
-                <el-tabs tab-position="left">
-                    <el-tab-pane label="基本信息">
-                        <el-row>
-                            <el-col :span="8">
-                                <el-form-item label="资产条码">
-                                    <el-input v-model="editRegisterData.bar_code" disabled placeholder="自动生成"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产名称">
-                                    <el-input v-model="editRegisterData.name" placeholder="资产名称"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产类型">
-                                    <el-select v-model="editRegisterData.type_id" placeholder="资产类型">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="规格型号">
-                                    <el-input v-model="editRegisterData.specification" placeholder="规格型号"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="SN号">
-                                    <el-input v-model="editRegisterData.sn" placeholder="SN号"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="计量单位">
-                                    <el-input v-model="editRegisterData.metering" placeholder="计量单位"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="金额">
-                                    <el-input v-model="editRegisterData.money" placeholder="金额"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用公司">
-                                    <el-select v-model="editRegisterData.company" placeholder="使用公司">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用部门">
-                                    <el-select v-model="editRegisterData.department" placeholder="使用部门">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="购买时间">
-                                    <el-date-picker
-                                    v-model="editRegisterData.purchase_time"
-                                    type="date"
-                                    style="width:100%;"
-                                    placeholder="购买时间">
-                                    </el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用人">
-                                    <el-select v-model="editRegisterData.user_id" placeholder="使用人">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="管理员">
-                                    <el-select v-model="editRegisterData.manager_id" placeholder="管理员">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="存放地点">
-                                    <el-select v-model="editRegisterData.warehouse_id" placeholder="存放地点">
-                                        <el-option value="New York">New York</el-option>
-                                        <el-option value="London">London</el-option>
-                                        <el-option value="Sydney">Sydney</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用期限">
-                                    <el-input v-model="editRegisterData.duration_use" placeholder="使用期限(月)"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="来源">
-                                    <el-select v-model="editRegisterData.source" placeholder="来源">
-                                        <el-option value="gouru">购入</el-option>
-                                        <el-option value="zijian">自建</el-option>
-                                        <el-option value="juanzeng">捐赠</el-option>
-                                        <el-option value="zulin">租赁</el-option>
-                                        <el-option value="qita">其他</el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="16">
-                                <el-form-item label="备注">
-                                    <el-input type="textarea" v-model="editRegisterData.remarks" placeholder="备注"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产照片">
-                                    <el-upload
-                                    class="assets-uploader"
-                                    action="https://jsonplaceholder.typicode.com/posts/"
-                                    :show-file-list="false"
-                                    :on-success="handleAvatarSuccess"
-                                    :before-upload="beforeAvatarUpload">
-                                        <img v-if="editRegisterData.image" :src="editRegisterData.image" class="avatar">
-                                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                    </el-upload>
-                                </el-form-item>
-                            </el-col>
-
-                        </el-row>
-                    </el-tab-pane>
-                    <el-tab-pane label="维保信息">
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="供应商">
-                                    <el-input v-model="editRegisterData.supplier" placeholder="供应商名称"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="联系人">
-                                    <el-input v-model="editRegisterData.contacts" placeholder="联系人"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="联系方式">
-                                    <el-input v-model="editRegisterData.tell" placeholder="联系方式"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="维保到期">
-                                    <el-date-picker
-                                    v-model="editRegisterData.expiry_time"
-                                    type="date"
-                                    style="width:100%;"
-                                    placeholder="维保到期时间">
-                                    </el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="24">
-                                <el-form-item label="维保说明">
-                                    <el-input type="textarea" v-model="editRegisterData.explain" placeholder="维保说明"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                    </el-tab-pane>
-                </el-tabs>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="editDialogTableVisible = false">取 消</el-button>
-                <el-button type="primary" @click="editRegisterDone">确 定</el-button>
-            </div>
-        </el-dialog>
-
-        <!-- 资产查看 弹窗 -->
-        <el-dialog title="资产查看" width="70%" class="show-dialog" :visible.sync="showDialogTableVisible">
-            <el-form ref="addform" :model="showRegisterData" label-width="80px" :size="$store.state.size">
-                <el-tabs tab-position="left">
-                    <el-tab-pane label="基本信息">
-                        <el-row>
-                            <el-col :span="8">
-                                <el-form-item label="资产条码">
-                                    <el-input v-model="showRegisterData.bar_code" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产名称">
-                                    <el-input v-model="showRegisterData.name" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产类型">
-                                    <el-input v-model="showRegisterData.type_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="规格型号">
-                                    <el-input v-model="showRegisterData.specification" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="SN号">
-                                    <el-input v-model="showRegisterData.sn" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="计量单位">
-                                    <el-input v-model="showRegisterData.metering" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="金额">
-                                    <el-input v-model="showRegisterData.money" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用公司">
-                                    <el-input v-model="showRegisterData.company" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用部门">
-                                    <el-input v-model="showRegisterData.department" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="购买时间">
-                                    <el-input v-model="showRegisterData.purchase_time" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用人">
-                                    <el-input v-model="showRegisterData.user_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="管理员">
-                                    <el-input v-model="showRegisterData.manager_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="存放地点">
-                                    <el-input v-model="showRegisterData.warehouse_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用期限">
-                                    <el-input v-model="showRegisterData.duration_use" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="来源">
-                                    <el-input v-model="showRegisterData.source" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="16">
-                                <el-form-item label="备注">
-                                    <el-input type="textarea" v-model="showRegisterData.remarks" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产照片">
-                                    <div class="assets-uploader">
-                                        <img class="el-upload avatar" v-if="showRegisterData.image" :src="showRegisterData.image">
-                                    </div>
-                                    
-                                </el-form-item>
-                            </el-col>
-
-                        </el-row>
-                    </el-tab-pane>
-                    <el-tab-pane label="维保信息">
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="供应商">
-                                    <el-input v-model="showRegisterData.supplier" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="联系人">
-                                    <el-input v-model="showRegisterData.contacts" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="联系方式">
-                                    <el-input v-model="showRegisterData.tell" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="维保到期">
-                                    <el-input v-model="showRegisterData.expiry_time" disabled ></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="24">
-                                <el-form-item label="维保说明">
-                                    <el-input type="textarea" disabled v-model="showRegisterData.explain"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                    </el-tab-pane>
-                </el-tabs>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="showDialogTableVisible = false">确 定</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 <script>
+import VueQr from 'vue-qr';
 import daBreadcrumb from "@/components/da-breadcrumb";
 import daAssetsStatus from "@/components/da-assets-status";
+import classesSelect from "../Classes/classesSelect"
 export default {
+    components: {
+        'classes-select':classesSelect,
+        daBreadcrumb,
+        daAssetsStatus,
+        VueQr
+    },
     data(){
         return {
             activeName:'register',
             searchKey:'',
             addDialogTableVisible:false,
             editDialogTableVisible:false,
-            showDialogTableVisible:false,
+            showModel:false,
             addRegisterData:{},
             delRegisterIds:[],
-            editRegisterData:{},
-            showRegisterData:{},
-            registerData: [
-                {
-                    "id":1,
-                    "bar_code":"0191063662278",
-                    "name":"打印机",
-                    "type_id":"02",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":2980,
-                    "company":"光威",
-                    "department":"",
-                    "purchase_time":"Sat Aug 25 2018 23:25:52 GMT+0800 (中国标准时间)",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":2,
-                    "bar_code":"0191063662276",
-                    "name":"切纸机",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":1,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":3,
-                    "bar_code":"0191063662267",
-                    "name":"复印机",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":2,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":4,
-                    "bar_code":"0191064662278",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":5,
-                    "bar_code":"0191063662270",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":12,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-
-                
-                {
-                    "id":6,
-                    "bar_code":"0191063662277",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":7,
-                    "bar_code":"0191063662272",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":4,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":8,
-                    "bar_code":"0191063662271",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":9,
-                    "bar_code":"0191063662252",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":10,
-                    "bar_code":"0191063662223",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":11,
-                    "bar_code":"0191063662233",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                }
-            ]
+            registerData: []
         }
     },
     methods:{
@@ -880,13 +216,14 @@ export default {
             if(true){
                 let _self=this;
                 this.addDialogTableVisible = false;
-                //console.log(_self.addRegisterData)
                 this.$api.post("/asset/save",_self.addRegisterData).then((res)=>{
                     _self.addRegisterData = {};
                     _self.$message({
                         type: 'success',
                         message: '添加成功!'
-                    });         
+                    });       
+                    _self.addDialogTableVisible=false;
+                    _self.load();  
                 })
             }else{
                 this.$message({
@@ -896,30 +233,12 @@ export default {
             }
         },
         showRegister(row){
-            this.showDialogTableVisible = true;
-            this.showRegisterData = row;
-        },
-        editRegister(row){
-            this.editDialogTableVisible = true;
-            this.editRegisterData = JSON.parse(JSON.stringify(row));
-        },
-        editRegisterDone(){
-            this.editDialogTableVisible = false;
-            //ajax 提交编辑数据 editRegisterData
-            if(true){
-                this.$message({
-                    type: 'success',
-                    message: '编辑成功!'
-                });
-            }else{
-                this.$message({
-                    type: 'warning',
-                    message: '编辑失败!'
-                });
-            }
-            
+            this.showModel = true;
+            this.addRegisterData = row;
+            this.addDialogTableVisible=true;
         },
         delRegister(){
+            let _self=this;
             if(this.delRegisterIds.length==0){
                 this.$message('请选中要删除的数据条目！');
                 return;
@@ -930,19 +249,25 @@ export default {
                 type: 'warning'
             }).then(() => {
                 //要删除的ID数组 this.delRegisterIds
-                if(true){
-                    this.$message({
-                        type: 'success',
-                        message: '删除成功!'
-                    });
-                }else{
-                    this.$message({
-                        type: 'warning',
-                        message: '删除失败!'
-                    });
-                }
-                
-            }).catch(() => {
+                _self.$api.post("/asset/delete",{ids:_self.delRegisterIds}).then(
+                    res =>{
+                        if(res.code==0){
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                            _self.load();
+                        }else{
+                            this.$message({
+                                type: 'warning',
+                                message: res.msg
+                            });
+                        }
+                    }
+
+                )   
+            }).catch((error) => {
+                console.log(error)
                 this.$message({
                     type: 'info',
                     message: '已取消删除'
@@ -951,31 +276,22 @@ export default {
         },
         handleSelectionChange(val){
             //获取选中的删除条目ID
-            console.log(val)
+            //console.log(val)
             this.delRegisterIds = val.map((val)=>{
-                return val.date
+                return val.id
             })
         },
-        beforeAvatarUpload(){
-
-        },
-        handleAvatarSuccess(){
-            if(true){
-                this.$message({
-                    type: 'success',
-                    message: '上传成功!'
-                });
-            }else{
-                this.$message({
-                    type: 'warning',
-                    message: '上传失败!'
-                });
-            }
+        load() {
+            let _self=this;
+            this.$api.get("/asset/list").then(res=>{
+                if(res.code==0 && res.data){
+                    _self.registerData=res.data;
+                }
+            })
         }
     },
-    components:{
-        daBreadcrumb,
-        daAssetsStatus
+    mounted(){
+        this.load()
     }
 }
 </script>
