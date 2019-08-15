@@ -69,8 +69,6 @@ export default {
                 }).catch((err)=>{
                     if(process.env.NODE_ENV=='development'){
                         this.$message.success('开发环境登陆成功');
-                        sessionStorage.roleId=0;
-                        sessionStorage.username=_self.ruleForm.username;
                         this.$router.push({name:"Main"});     
                     }else{
                         throw new Error('请求报错:'+err);

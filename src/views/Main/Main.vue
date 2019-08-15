@@ -185,6 +185,12 @@ export default {
         }
         this.activeNav = _self.$route.name;
       }
+    }).catch(err=>{
+      if(process.env.NODE_ENV=='development'){
+        let user={roleId:0,name:"超级管理员"}
+        this.$store.commit("saveCurrentUser",user);
+        this.routes = _self.$router.options.routes[1].children.filter(v =>v.hidden!=true);
+      } 
     })
   }
 };
