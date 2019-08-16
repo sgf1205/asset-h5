@@ -298,10 +298,12 @@ export default {
             let foot_str ="</body></html>";//生成尾部
             let new_str =document.getElementById("qrcode2").innerHTML;//获取指定打印区域
             //构建新网页(关键步骤,必须先构建新网页,在生成二维码,否则不能显示二维码)
-            document.body.innerHTML =head_str + new_str +foot_str;
+            window.document.body.innerHTML =head_str + new_str +foot_str;
             
-            document.contentWindow.print();//打印刚才新建的网页
-            return false;
+            window.print();//打印刚才新建的网页
+            window.location.reload();   //解决打印之后按钮失效的问题
+
+            window.document.body.innerHTML = oldstr;      return false;
         },
         load() {
             let _self=this;
