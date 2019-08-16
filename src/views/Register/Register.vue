@@ -8,6 +8,7 @@
                         <el-col :span="18">
                             <el-button type="primary" :size="$store.state.size" @click="addDialogTableVisible=true" icon="el-icon-plus">新增</el-button>
                             <el-button type="danger" :size="$store.state.size" @click="delRegister" icon="el-icon-delete">删除</el-button>
+                            <el-button type="primary" :size="$store.state.size" @click="print" icon="el-icon-print">打印资产标签</el-button>
                             <!--
                             <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
                                 <i class="el-icon-daochu"></i> 导入/导出
@@ -17,6 +18,7 @@
                                     <el-dropdown-item divided>导出资产</el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
+                            
                             <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
                                 <i class="el-icon-printer"></i> 打印
                                 <el-dropdown-menu slot="dropdown">
@@ -183,11 +185,16 @@
                 <el-button @click="addDialogTableVisible = false">取 消</el-button>
             </div>
         </el-dialog>
+        <div style="margin:0 auto;display:none;" id="qrcode2">
+            <printTag v-model="printData"/>
+
+        </div>
     </div>
 </template>
 <script>
 import VueQr from 'vue-qr';
 import daBreadcrumb from "@/components/da-breadcrumb";
+import printTag from "@/components/printTag"
 import daAssetsStatus from "@/components/da-assets-status";
 import classesSelect from "../Classes/classesSelect"
 export default {
@@ -195,7 +202,8 @@ export default {
         'classes-select':classesSelect,
         daBreadcrumb,
         daAssetsStatus,
-        VueQr
+        VueQr,
+        printTag
     },
     data(){
         return {
@@ -206,7 +214,9 @@ export default {
             showModel:false,
             addRegisterData:{},
             delRegisterIds:[],
-            registerData: []
+            selectedRows:[],
+            registerData: [],
+            printData:{}
         }
     },
     methods:{
@@ -280,6 +290,18 @@ export default {
             this.delRegisterIds = val.map((val)=>{
                 return val.id
             })
+            this.selectedRows=val;
+        },
+        print(){
+            this.printData=this.selectedRows[0];
+            let head_str ='<html><head><title>小区二维码打印</title></head><body>';//先生成头部
+            let foot_str ="</body></html>";//生成尾部
+            let new_str =document.getElementById("qrcode2").innerHTML;//获取指定打印区域
+            //构建新网页(关键步骤,必须先构建新网页,在生成二维码,否则不能显示二维码)
+            document.body.innerHTML =head_str + new_str +foot_str;
+            
+            document.contentWindow.print();//打印刚才新建的网页
+            return false;
         },
         load() {
             let _self=this;
