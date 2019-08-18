@@ -45,12 +45,12 @@
             </el-col>
             <el-col :span="6">
               <el-input
-                placeholder="请输入搜索内容"
-                v-model="searchKey"
+                placeholder="请输入资产名称"
+                v-model="searchAssetName"
                 class="input-with-select"
                 :size="$store.state.size"
               >
-                <el-button slot="append" icon="el-icon-search"></el-button>
+                <el-button slot="append" icon="el-icon-search" @click="load"></el-button>
               </el-input>
             </el-col>
           </el-row>
@@ -81,7 +81,7 @@
               <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
             </el-table-column>
             <el-table-column prop="registerUserName" label="登记人" width="120"></el-table-column>
-            <el-table-column  align="center" label="操作">
+            <el-table-column align="center" label="操作">
               <template slot-scope="scope">
                 <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
               </template>
@@ -89,10 +89,13 @@
           </el-table>
           <el-pagination
             background
-            :page-sizes="[10, 20, 30, 50]"
-            :page-size="10"
+            :page-sizes="[5,10, 20, 30, 50]"
+            :page-size="pageSize"
             layout="sizes, prev, pager, next"
-            :total="100"
+            :total="totalSize"
+            :current-page="currentPage"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
           ></el-pagination>
         </el-tab-pane>
       </el-tabs>
@@ -100,7 +103,7 @@
 
     <!-- 资产登记 弹窗 -->
     <el-dialog title="资产登记" width="70%" :visible.sync="addDialogTableVisible">
-      <el-form ref="addform" :model="addRegisterData" label-width="80px">
+      <el-form ref="form" :model="addRegisterData" label-width="80px" :rules="rules">
         <el-tabs tab-position="left">
           <el-tab-pane label="基本信息">
             <el-row>
@@ -115,12 +118,12 @@
               </el-col>
 
               <el-col :span="8">
-                <el-form-item label="资产名称">
+                <el-form-item label="资产名称" prop="name">
                   <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="资产类型">
+                <el-form-item label="资产类型" prop="classesId">
                   <classes-select v-model="addRegisterData.classesId"></classes-select>
                 </el-form-item>
               </el-col>
@@ -140,12 +143,12 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="金额">
+                <el-form-item label="金额" prop="money">
                   <el-input v-model="addRegisterData.money" placeholder="金额"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="购买时间">
+                <el-form-item label="购买时间" prop="purchaseTime">
                   <el-date-picker
                     v-model="addRegisterData.purchaseTime"
                     type="date"
@@ -204,7 +207,6 @@
         <el-button @click="addDialogTableVisible = false">取 消</el-button>
       </div>
     </el-dialog>
-    
   </div>
 </template>
 <script>
@@ -214,6 +216,7 @@ import daBreadcrumb from "@/components/da-breadcrumb";
 import printTag from "@/components/printTag";
 import daAssetsStatus from "@/components/da-assets-status";
 import classesSelect from "../Classes/classesSelect";
+import {isDecimal} from "@/libs/validator.js";
 export default {
   components: {
     "classes-select": classesSelect,
@@ -223,9 +226,16 @@ export default {
     printTag
   },
   data() {
+  
     return {
+      rules: {
+        name: [{ required: true, message: "请输入" }],
+        classesId: [{ required: true, message: "请选择" }],
+        money: [{ validator: isDecimal }],
+        purchaseTime: [{ required: true, message: "请输入" }]
+      },
       activeName: "register",
-      searchKey: "",
+      searchAssetName: "",
       addDialogTableVisible: false,
       editDialogTableVisible: false,
       showModel: false,
@@ -233,31 +243,31 @@ export default {
       delRegisterIds: [],
       selectedRows: [],
       registerData: [],
-      printData: {}
+      printData: {},
+      pageSize: 10,
+      currentPage: 1,
+      totalSize: 0
     };
   },
   methods: {
     addRegister() {
       //addRegisterData 要添加的资产数据
 
-      if (true) {
-        let _self = this;
-        this.addDialogTableVisible = false;
-        this.$api.post("/asset/save", _self.addRegisterData).then(res => {
-          _self.addRegisterData = {};
-          _self.$message({
-            type: "success",
-            message: "添加成功!"
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          let _self = this;
+          this.addDialogTableVisible = false;
+          this.$api.post("/asset/save", _self.addRegisterData).then(res => {
+            _self.addRegisterData = {};
+            _self.$message({
+              type: "success",
+              message: "添加成功!"
+            });
+            _self.addDialogTableVisible = false;
+            _self.load();
           });
-          _self.addDialogTableVisible = false;
-          _self.load();
-        });
-      } else {
-        this.$message({
-          type: "warning",
-          message: "添加失败!"
-        });
-      }
+        }
+      });
     },
     showRegister(row) {
       this.showModel = true;
@@ -313,29 +323,41 @@ export default {
     print() {
       let _self = this;
       let head_str = "<html><head><title>资产标签打印</title></head>"; //先生成头部
-       head_str += "<style media='print'>"
-                +"@page {               "
-                +"  size: auto;         "
-                +"     margin: 0mm;     "
-                +"   }                  ";
+      head_str +=
+        "<style media='print'>" +
+        "@page {               " +
+        "  size: auto;         " +
+        "     margin: 0mm;     " +
+        "   }                  ";
 
-    head_str += "</style><body>";
+      head_str += "</style><body>";
       let foot_str = "</body></html>"; //生成尾部
 
       let printContent = "";
       let pLength = _self.selectedRows.length;
       for (let i = 0; i < pLength; i++) {
-        printContent += "<table style='margin:15px;page-break-after:always;'><tr >";
-        printContent += "<td style='padding:10px'>" + "<div id='XQ" + i + "'></div>";
+        printContent +=
+          "<table style='margin:15px;page-break-after:always;'><tr >";
+        printContent +=
+          "<td style='padding:10px'>" + "<div id='XQ" + i + "'></div>";
         printContent += "</td>";
         printContent += "<td>";
-        printContent +="<label style='display:block'>资产名称：" +_self.selectedRows[i].name +"</label>";
-        printContent +="<label style='display:block;margin-top:10px'>资产类型：" +_self.selectedRows[i].classes.name +"</label>";
-        printContent +="<label style='display:block;margin-top:10px'>登记人：" +_self.selectedRows[i].registerUserName +"</label>";
+        printContent +=
+          "<label style='display:block'>资产名称：" +
+          _self.selectedRows[i].name +
+          "</label>";
+        printContent +=
+          "<label style='display:block;margin-top:10px'>资产类型：" +
+          _self.selectedRows[i].classes.name +
+          "</label>";
+        printContent +=
+          "<label style='display:block;margin-top:10px'>登记人：" +
+          _self.selectedRows[i].registerUserName +
+          "</label>";
         printContent += "</td></tr>";
         printContent += "</table>";
       }
-      let oldStr=document.body.innerHTML;
+      let oldStr = document.body.innerHTML;
       //构建新网页(关键步骤,必须先构建新网页,在生成二维码,否则不能显示二维码)
       document.body.innerHTML = head_str + printContent + foot_str;
       for (let j = 0; j < _self.selectedRows.length; j++) {
@@ -350,17 +372,33 @@ export default {
         });
       }
       window.print(); //打印刚才新建的网页
-      document.body.innerHTML=oldStr
+      document.body.innerHTML = oldStr;
       window.location.reload();
       return false;
     },
     load() {
       let _self = this;
-      this.$api.get("/asset/list").then(res => {
-        if (res.code == 0 && res.data) {
-          _self.registerData = res.data;
-        }
-      });
+      this.$api
+        .get("/asset/list", {
+          name: this.searchAssetName,
+          pageSize: this.pageSize,
+          currentPage: this.currentPage
+        })
+        .then(res => {
+          if (res.code == 0 && res.data) {
+            _self.registerData = res.data.result;
+            //_self.currentPage=res.data.currentPage;
+            _self.totalSize = res.data.totalSize;
+          }
+        });
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.load();
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.load();
     }
   },
   mounted() {

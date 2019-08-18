@@ -4,6 +4,8 @@ import Vue from "vue";
  * 格式化货币
  */
 Vue.filter('currency', function(value = '0', currencyType = '￥',limit=2) {
+    if(!value)
+        return '';
     let res;
     value = value.toFixed(limit);
     let prev = value.toString().split('.')[0]; //获取整数部分
@@ -17,6 +19,8 @@ Vue.filter('currency', function(value = '0', currencyType = '￥',limit=2) {
  * 格式化日期 
 */
 Vue.filter("date",function(val='',format='yyyy-MM-dd'){
+    if(!val)
+        return '';
     val = val.length==13?Number(val):val;
 	var date = new Date(val);
 	if (/(y+)/.test(format)) {
