@@ -102,7 +102,18 @@ export default {
             }
         })
     },
+    getParentNode(node,nodePath){
+      if(node.pid&&node.pid!=0){
+        let pnode=this.$refs.orgnTree.getNode(node.pid)
+        nodePath.push(pnode);
+        this.getParentNode(node,nodePath);
+      }
+    },
     handleNodeClick(node){
+      
+      let nodePath=[];
+      nodePath.push(node);
+      this.getParentNode(node,nodePath);
       let _self=this;
       _self.clickNode=node;
         this.$api.get("/sys/organ/list?id="+node.id).then(res=>{
