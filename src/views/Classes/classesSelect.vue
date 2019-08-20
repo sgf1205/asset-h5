@@ -1,7 +1,9 @@
 <template>
-  <el-select :value="value" @change="selectChange">
-    <el-option v-for="(opt ,index) in datas" :key="index" :label="opt.name" :value="opt.id"></el-option>
-  </el-select>
+  <div>
+    <el-select :value="value" @change="selectChange">
+      <el-option v-for="(opt ,index) in datas" :key="index" :label="opt.name" :value="opt.id"></el-option>
+    </el-select>
+  </div>
 </template>
 <script>
 export default {

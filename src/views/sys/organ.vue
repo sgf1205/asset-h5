@@ -61,11 +61,7 @@
 <script>
 
 import tree from '@/libs//tree'
-import organSelect from './OrganSelect'
 export default {
-  components: {
-    'organ-select':organSelect
-  },
   data: function() {
     return {
       rules: {
