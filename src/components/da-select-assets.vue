@@ -54,9 +54,10 @@ export default {
     };
   },
   methods: {
-    handleSelectionChange() {
+    handleSelectionChange(val) {
       //选中指定分类下资产方法
       this.selectAssetsData = val;
+      this.$emit('handle',val);
     },
     handleSelectionDone() {
       //将选择的资产放入传递
@@ -82,6 +83,9 @@ export default {
           }
         });
     }
+  },
+  mounted(){
+      this.load()
   },
   computed: {
     classesData: function() {

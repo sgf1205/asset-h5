@@ -106,51 +106,59 @@
       <el-form ref="form" :model="addRegisterData" label-width="80px" :rules="rules">
         <el-tabs tab-position="left">
           <el-tab-pane label="基本信息">
+            <el-row>
             <template>
               <slot v-if="showModel">
-                   <el-row>
-                <el-col  :span="8" align="center" style="height:180px">
-                  <div id="qrcode"></div>
-                </el-col>
-                <el-col :span="16">
-                  <el-col :span="16">
-                    <el-form-item label="资产名称" prop="name">
-                      <el-input v-model="addRegisterData.name" placeholder="资产名称" disabled="true"></el-input>
-                    </el-form-item>
+                
+                  <el-col :span="8" align="center" style="height:180px">
+                    <div id="qrcode"></div>
                   </el-col>
                   <el-col :span="16">
-                    <el-form-item label="资产类型" prop="classesId">
-                      <el-input v-model="addRegisterData.classesName" placeholder="资产名称"  disabled="true"></el-input>
-                    </el-form-item>
+                    <el-col :span="16">
+                      <el-form-item label="资产名称" prop="name">
+                        <el-input v-model="addRegisterData.name" placeholder="资产名称" disabled="true"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="16">
+                      <el-form-item label="资产类型" prop="classesId">
+                        <el-input
+                          v-model="addRegisterData.classesName"
+                          placeholder="资产名称"
+                          disabled="true"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="16">
+                      <el-form-item label="登记部门" prop="organId">
+                        <el-input
+                          v-model="addRegisterData.organName"
+                          placeholder="资产名称"
+                          disabled="true"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
                   </el-col>
-                  <el-col :span="16">
-                    <el-form-item label="登记部门" prop="organId">
-                      <el-input v-model="addRegisterData.organName" placeholder="资产名称"  disabled="true"></el-input>
-                    </el-form-item>
-                  </el-col>
-                </el-col>
-              </el-row>
-
+                
               </slot>
               <slot v-else>
                 <el-col :span="8">
-                    <el-form-item label="资产名称" prop="name">
-                      <el-input v-model="addRegisterData.name" placeholder="资产名称" ></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="资产类型" prop="classesId">
-                      <classes-select v-model="addRegisterData.classesId" ></classes-select>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="登记部门" prop="organId">
-                      <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId" ></organ-select>
-                    </el-form-item>
-                  </el-col>
+                  <el-form-item label="资产名称" prop="name">
+                    <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="资产类型" prop="classesId">
+                    <classes-select v-model="addRegisterData.classesId"></classes-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="登记部门" prop="organId">
+                    <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
+                  </el-form-item>
+                </el-col>
               </slot>
-             
             </template>
+            </el-row>
             <el-row>
               <el-col :span="8">
                 <el-form-item label="规格型号">
@@ -314,7 +322,7 @@ export default {
         this.$message("请选中要删除的数据条目！");
         return;
       }
-      let delRegisterIds=this.selectedRows.map(r=>r.id);
+      let delRegisterIds = this.selectedRows.map(r => r.id);
       this.$confirm("此操作将永久删除该数据, 是否继续?", "资产删除确认提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -353,17 +361,16 @@ export default {
       this.selectedRows = val;
     },
     print() {
-      
       let _self = this;
       let pLength = _self.selectedRows.length;
-      if(pLength==0){
+      if (pLength == 0) {
         this.$message({
-                  type: "error",
-                  message: "请先选择需要打印的资产信息!"
-                });
+          type: "error",
+          message: "请先选择需要打印的资产信息!"
+        });
         return;
       }
-       
+
       let head_str = "<html><head><title>资产标签打印</title></head>"; //先生成头部
       head_str +=
         "<style media='print'>" +
