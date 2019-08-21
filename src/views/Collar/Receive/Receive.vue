@@ -8,7 +8,7 @@
           type="primary"
           :size="$store.state.size"
           icon="el-icon-plus"
-          @click="addCollarDialogVisible = true"
+          @click="addCollarDialogVisible = true;newModel=true"
         >新增</el-button>
       </el-col>
 
@@ -35,7 +35,6 @@
       :data="collars"
       border
       style="width: 100%;margin:10px 0;"
-      @selection-change="handleSelectionChange"
     >
       <el-table-column fixed type="selection"></el-table-column>
       <el-table-column prop="collarTime" label="领用时间">
@@ -79,8 +78,6 @@
               <el-date-picker
                 v-model="addCollarForm.collarTime"
                 type="date"
-                format="yyyy 年 MM 月 dd 日"
-                value-format="timestamp"
                 placeholder="选择领用日期"
               ></el-date-picker>
             </el-form-item>
@@ -88,10 +85,8 @@
           <el-col :span="8">
             <el-form-item label="归还时间">
               <el-date-picker
-                v-model="addCollarForm.expect_retreat"
+                v-model="addCollarForm.retreatTime"
                 type="date"
-                format="yyyy 年 MM 月 dd 日"
-                value-format="timestamp"
                 placeholder="选择归还时间"
               ></el-date-picker>
             </el-form-item>
@@ -103,49 +98,54 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-button :size="$store.state.size" @click="selectAssetsDialogVisible=true">选择资产</el-button>
-          <el-button type="danger" :size="$store.state.size">删除</el-button>
+        <el-row v-if="newModel">
+          <el-button :size="$store.state.size" @click="openSelectAssetsDialog">选择资产</el-button>
+          <el-button type="danger" :size="$store.state.size" @click="removeSelectedAsset">删除</el-button>
         </el-row>
         <el-table
           :data="selectCollarAssetsData"
           border
           style="width: 100%;margin:10px 0;"
-          @selection-change="handleSelectionChange"
+          @selection-change="handleAssetSelectionChange"
         >
           <el-table-column fixed type="selection" width="55"></el-table-column>
-          <el-table-column prop="bar_code" label="资产条码" width="140"></el-table-column>
-          <el-table-column prop="name" label="资产名称" width="150"></el-table-column>
-          <el-table-column prop="type_id" label="资产类型" width="150"></el-table-column>
-          <el-table-column prop="company" label="使用公司" width="100"></el-table-column>
-          <el-table-column prop="department" label="使用部门" width="100"></el-table-column>
-          <el-table-column prop="user_id" label="使用人" width="100"></el-table-column>
-          <el-table-column prop="manager_id" label="管理员" width="100"></el-table-column>
-          <el-table-column prop="address" label="存放地点" width="100"></el-table-column>
+           <el-table-column align="center" prop="name" label="资产名称" ></el-table-column>
+          <el-table-column prop="classesName" label="资产类型" ></el-table-column>
+          <el-table-column prop="specification" label="规格型号" ></el-table-column>
+          <el-table-column prop="sn" label="序列号" ></el-table-column>
+          <el-table-column prop="money" label="金额" >
+            <template slot-scope="scope">{{scope.row.money|currency}}</template>
+          </el-table-column>
+          <el-table-column prop="purchaseTime" label="购买时间" >
+            <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
+          </el-table-column>
+          <el-table-column prop="registerTime" label="登记时间" >
+            <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
+          </el-table-column>
+          <el-table-column prop="registerUserName" label="登记人" ></el-table-column>
         </el-table>
       </el-form>
 
       <!-- 选择资产弹窗 -->
       <el-dialog title="选择资产" :visible.sync="selectAssetsDialogVisible" width="70%" append-to-body>
-        <da-select-assets :handle="handleAddGetAssets"></da-select-assets>
+        <da-select-assets v-if="assetsCompentReset" @handle="handleAddGetAssets" ref="assetsSelect" ></da-select-assets>
         <span slot="footer" class="dialog-footer">
           <el-button :size="$store.state.size" @click="selectAssetsDialogVisible = false">取 消</el-button>
           <el-button :size="$store.state.size" type="primary" @click="handleSelectionDone">确 定</el-button>
         </span>
       </el-dialog>
       <span slot="footer" class="dialog-footer">
-        <el-button :size="$store.state.size" @click="addCollarDialogVisible = false">取 消</el-button>
+        <el-button :size="$store.state.size" @click="addCollarDialogVisible = false;newModel=false">取 消</el-button>
         <el-button
           :size="$store.state.size"
           type="primary"
-          @click="addCollarDialogVisible = false"
+          @click="handleAddCollarDone"
         >确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import daSelectPerson from "@/components/da-select-person";
 import daSelectAssets from "@/components/da-select-assets";
 import organSelect from "../../sys/OrganSelect";
 export default {
@@ -153,14 +153,13 @@ export default {
     return {
       searchDate: [],
       addCollarDialogVisible: false,
-      selectPersonDialogVisible: false, //选择联系人对话框状态
       addCollarForm: {},
-      departments: [], //某公司下所有部门数据
       showCollarDialogVisible: false,
       selectAssetsDialogVisible: false,
-      selectedCollarAssetsData: [], //已选择资产
+      assetsCompentReset:false,
       selectCollarAssetsData: [], //正在选择资产
-      classAssetsData: [], //指定分类的资产数据
+      selectAssetsIds:[],
+      newModel:false,
       collars: []
     };
   },
@@ -171,6 +170,7 @@ export default {
     handleClickShowCollar(data) {
       this.showCollarDialogVisible = true;
       this.showCollarForm = data;
+      this.newModel=false;
     },
     handleAddGetAssets(data) {
       //正在选择资产
@@ -181,25 +181,47 @@ export default {
       this.addCollarForm.personnel_id = row.personnel_id;
       this.addCollarForm.personnel_name = row.personnel_name;
     },
+    openSelectAssetsDialog(){
+      this.selectAssetsDialogVisible=true;
+      this.assetsCompentReset = false
+      this.$nextTick(() => {
+        this.assetsCompentReset = true
+      })
+
+    },
     handleSelectionDone() {
-      this.selectAssetsDialogVisible = false; //隐藏选择资产弹窗
-      //this.selectedCollarAssetsData = this.selectCollarAssetsData; //将选择的资产放入已选择资产中
+      this.$refs.assetsSelect.handleSelectionDone();
+      this.selectAssetsDialogVisible = false;
+    },
+    handleAssetSelectionChange(val){
+      this.selectAssetsIds = val.map(v=>v.id);
+    },
+    removeSelectedAsset(){
+      if(this.selectAssetsIds.length>0){
+        this.selectCollarAssetsData=this.selectCollarAssetsData.filter(asset=>this.selectAssetsIds.indexOf(asset.id)==-1);
+      }
+    },
+    handleAddCollarDone(){
+      let _self=this;
+      this.addCollarForm.assetIds=this.selectCollarAssetsData
+                                    .map(val=>val.id);
+      this.$api
+        .post("/asset/collar/save", this.addCollarForm)
+        .then(res => {
+          if (res.code == 0 && res.data) {
+             _self.addCollarForm = {};
+            _self.$message({
+              type: "success",
+              message: "添加成功!"
+            });
+            this.addCollarDialogVisible = false;
+          }
+        });
     }
   },
   components: {
-    daSelectPerson,
     daSelectAssets,
     organSelect
-  },
-  watch: {
-    "addCollarForm.company_name": function(val) {
-      //获取该公司下所有部门数据
-      this.departments = [
-        { id: 1, department_name: "研发部" },
-        { id: 2, department_name: "人事部" },
-        { id: 3, department_name: "财务部" }
-      ];
-    }
   }
 };
 </script>
