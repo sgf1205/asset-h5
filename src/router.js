@@ -33,17 +33,17 @@ const routeMaps = [
         meta:{ title:"资产登记",icon:'el-icon-qianyuejilu' }
       },
       {
-        path:"collar",
-        name:"Collar",
+        path:"apply",
+        name:"apply",
         hidden:false,
-        component:()=>import('@/views/Collar/Collar'),
+        component:()=>import('@/views/apply/apply'),
         meta:{ title:"资产领用",icon:'el-icon-jieyong'}
       },
       {
         path:"borrow",
         name:"Borrow",
         hidden:false,
-        component:()=>import('@/views/Borrow/Borrow'),
+        component:()=>import('@/views/apply/Borrow'),
         meta:{ title:"借用归还",icon:'el-icon-jiehuan'}
       },
       {
