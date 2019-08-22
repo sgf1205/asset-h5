@@ -213,6 +213,7 @@ export default {
             val => val.id
           );
           _self.addApplyForm.type = 1;
+          _self.addApplyForm.status=3;
           _self.$api.post("/asset/apply/save", _self.addApplyForm).then(res => {
             if (res.code == 0) {
               _self.addApplyForm = {};
@@ -221,6 +222,7 @@ export default {
                 message: "添加成功!"
               });
               _self.addApplyDialogVisible = false;
+              _self.load();
             }
           });
         }
@@ -234,6 +236,7 @@ export default {
       let searchForm={};
       searchForm.pageSize=this.pageSize;
       searchForm.currentPage=this.currentPage;
+      searchForm.type=1;
       if(this.searchDate.length!=0){
         searchForm.startCreateDate = this.searchDate[0];
         searchForm.endCreateDate = this.searchDate[1];

@@ -16,13 +16,12 @@ export default {
                 4:{label:"维修中",color:"#E6A23C"},
                 5:{label:"报废",color:"#F56C6C"},
                
-                6:{label:"已调出",color:"#7465EA"},
+                6:{label:"已归还",color:"#7465EA"},
                 8:{label:"已完成",color:"#67C23A"},
                 9:{label:"已取消",color:"#E6A23C"}, 
                 /* 报修状态 10 - 14 */
                 10:{label:"已报修",color:"#409EFF"},
                 11:{label:"已接单",color:"#1898D1"},
-                12:{label:"已归还",color:"#67C23A"},
                 13:{label:"维修成功",color:"#67C23A"},
                 14:{label:"维修失败",color:"#F56C6C"},
             }
