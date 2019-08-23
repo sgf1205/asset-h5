@@ -1,558 +1,508 @@
 <template>
-    <div>
-        <da-breadcrumb></da-breadcrumb>
-        <el-card class="box-card">
-            <el-tabs v-model="activeName">
-                <el-tab-pane label="资产清单" name="bill">
-                    <el-row>
-                        <el-col :span="18">
-                            <el-dropdown split-button type="primary" :size="$store.state.size">
-                                <i class="el-icon-printer"></i> 使用公司
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item>康琴</el-dropdown-item>
-                                    <el-dropdown-item>康佳</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                            <el-button type="primary" :size="$store.state.size" icon="el-icon-plus" style="margin-left:10px;">导出</el-button>
-                        </el-col>
-                        <el-col :span="6">
-                            <el-input placeholder="请输入搜索内容" v-model="searchKey" class="input-with-select" :size="$store.state.size">
-                                <el-button slot="append" icon="el-icon-search"></el-button>
-                            </el-input>
-                        </el-col>
-                    </el-row>
-                    <el-table :data="registerData" border style="width: 100%;margin:10px 0;" @selection-change="handleSelectionChange">
-                        <el-table-column align="center" fixed type="selection" width="55"></el-table-column>
-                        <el-table-column align="center" prop="status" label="资产状态" width="80">
-                            <template slot-scope="scope">
-                                <da-assets-status :status="scope.row.status"></da-assets-status>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="bar_code" label="资产条码" width="140"> </el-table-column>
-                        <el-table-column prop="name" label="资产名称" width="150"> </el-table-column>
-                        <el-table-column prop="type_id" label="资产类型" width="150"> </el-table-column>
-                        <el-table-column prop="specification" label="规格型号" width="100"> </el-table-column>
-                        <el-table-column prop="sn" label="产品序列" width="100"> </el-table-column>
-                        <el-table-column align="center" prop="metering" label="计量单位" width="80"> </el-table-column>
-                        <el-table-column prop="money" label="金额" width="100">
-                            <template slot-scope="scope">
-                                {{scope.row.money|currency}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="company" label="使用公司" width="100"> </el-table-column>
-                        <el-table-column prop="department" label="使用部门" width="100"> </el-table-column>
-                        <el-table-column prop="purchase_time" label="购买时间" width="120">
-                            <template slot-scope="scope">
-                                {{scope.row.purchase_time|date}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="user_id" label="使用人" width="100"> </el-table-column>
-                        <el-table-column prop="manager_id" label="管理员" width="100"> </el-table-column>
-                        <el-table-column prop="address" label="存放地点" width="100"> </el-table-column>
-                        <el-table-column prop="duration_use" label="使用期限" width="120"> </el-table-column>
-                        <el-table-column prop="source" label="来源" width="80"> </el-table-column>
-                        <el-table-column fixed="right" label="操作" width="100">
-                            <template slot-scope="scope">
-                                <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
-                                <el-button type="text" :size="$store.state.size" @click="editRegister(scope.row)">编辑</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-pagination
-                    background
-                    :page-sizes="[10, 20, 30, 50]"
-                    :page-size="10"
-                    layout="sizes, prev, pager, next"
-                    :total="100">
-                    </el-pagination>
-                </el-tab-pane>
-            </el-tabs>
-        </el-card>
+  <div>
+    <da-breadcrumb></da-breadcrumb>
+    <el-card class="box-card">
+      <el-form
+        :model="searchForm"
+        ref="searchForm"
+        label-width="100px"
+        class="demo-ruleForm"
+        size="mini"
+      >
+        <el-row>
+          <el-col span="8">
+            <el-form-item label="登记部门">
+              <organ-select :v-model="searchForm.registerOrganId" @changeId="changeOrganId"></organ-select>
+            </el-form-item>
+          </el-col>
+          <el-col span="8">
+            <el-form-item label="使用部门">
+              <organ-select :v-model="searchForm.usingOrganId" @changeId="changeOrganId"></organ-select>
+            </el-form-item>
+          </el-col>
+          <el-col span="8">
+            <el-form-item label="资产名称">
+              <el-input
+                placeholder="请输入关键字"
+                v-model="searchForm.name"
+                :size="$store.state.size"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col span="8">
+            <el-form-item label="资产状态">
+              <el-select v-model="searchForm.status">
+                   <el-option
+                    v-for="item in status"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col span="16">
+            <el-form-item label="资产价格" >
+              <el-input-number v-model="searchForm.lowMoney" />
+              至
+              <el-input-number v-model="searchForm.maxMoney"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <!-- 资产查看 弹窗 -->
-        <el-dialog title="资产查看" width="70%" class="show-dialog" :visible.sync="showDialogTableVisible">
-            <el-form ref="addform" :model="showRegisterData" label-width="80px" :size="$store.state.size">
-                <el-tabs tab-position="left">
-                    <el-tab-pane label="基本信息">
-                        <el-row>
-                            <el-col :span="8">
-                                <el-form-item label="资产条码">
-                                    <el-input v-model="showRegisterData.bar_code" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产名称">
-                                    <el-input v-model="showRegisterData.name" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产类型">
-                                    <el-input v-model="showRegisterData.type_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="规格型号">
-                                    <el-input v-model="showRegisterData.specification" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="SN号">
-                                    <el-input v-model="showRegisterData.sn" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="计量单位">
-                                    <el-input v-model="showRegisterData.metering" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="金额">
-                                    <el-input v-model="showRegisterData.money" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用公司">
-                                    <el-input v-model="showRegisterData.company" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用部门">
-                                    <el-input v-model="showRegisterData.department" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="购买时间">
-                                    <el-input v-model="showRegisterData.purchase_time" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用人">
-                                    <el-input v-model="showRegisterData.user_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="管理员">
-                                    <el-input v-model="showRegisterData.manager_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="存放地点">
-                                    <el-input v-model="showRegisterData.warehouse_id" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="使用期限">
-                                    <el-input v-model="showRegisterData.duration_use" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="来源">
-                                    <el-input v-model="showRegisterData.source" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="16">
-                                <el-form-item label="备注">
-                                    <el-input type="textarea" v-model="showRegisterData.remarks" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="资产照片">
-                                    <div class="assets-uploader">
-                                        <img class="el-upload avatar" v-if="showRegisterData.image" :src="showRegisterData.image">
-                                    </div>
-                                    
-                                </el-form-item>
-                            </el-col>
+        <el-row>
+          <el-col>
+            <el-form-item>
+              <el-button type="primary" :size="$store.state.size" @click="load">查询</el-button>
+              <el-button
+                type="primary"
+                :size="$store.state.size"
+                icon="el-icon-plus"
+                style="margin-left:10px;"
+              >导出</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
 
-                        </el-row>
-                    </el-tab-pane>
-                    <el-tab-pane label="维保信息">
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="供应商">
-                                    <el-input v-model="showRegisterData.supplier" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="联系人">
-                                    <el-input v-model="showRegisterData.contacts" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="联系方式">
-                                    <el-input v-model="showRegisterData.tell" disabled></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="维保到期">
-                                    <el-input v-model="showRegisterData.expiry_time" disabled ></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="24">
-                                <el-form-item label="维保说明">
-                                    <el-input type="textarea" disabled v-model="showRegisterData.explain"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                    </el-tab-pane>
-                </el-tabs>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="showDialogTableVisible = false">确 定</el-button>
-            </div>
-        </el-dialog>
-    </div>
+      <el-table
+        :data="registerData"
+        border
+        style="width: 100%;margin:10px 0;"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column align="center" fixed type="selection" width="55"></el-table-column>
+        <el-table-column align="center" prop="status" label="资产状态" width="80">
+          <template slot-scope="scope">
+            <da-assets-status :status="scope.row.status"></da-assets-status>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="name" label="资产名称" width="260"></el-table-column>
+        <el-table-column prop="classesName" label="资产类型" width="150"></el-table-column>
+        <el-table-column prop="specification" label="规格型号" width="100"></el-table-column>
+        <el-table-column prop="sn" label="序列号" width="100"></el-table-column>
+        <el-table-column align="center" prop="metering" label="计量单位" width="80"></el-table-column>
+        <el-table-column prop="money" label="金额" width="100">
+          <template slot-scope="scope">{{scope.row.money|currency}}</template>
+        </el-table-column>
+        <el-table-column prop="purchaseTime" label="购买时间" width="120">
+          <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
+        </el-table-column>
+        <el-table-column prop="registerTime" label="登记时间" width="120">
+          <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
+        </el-table-column>
+        <el-table-column prop="registerUserName" label="登记人" width="120"></el-table-column>
+        <el-table-column align="center" label="操作">
+          <template slot-scope="scope">
+            <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        background
+        :page-sizes="[5,10, 20, 30, 50]"
+        :page-size="pageSize"
+        layout="sizes, prev, pager, next"
+        :total="totalSize"
+        :current-page="currentPage"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      ></el-pagination>
+    </el-card>
+
+    <!-- 资产登记 弹窗 -->
+    <el-dialog title="资产登记" width="70%" :visible.sync="addDialogTableVisible">
+      <el-form ref="form" :model="addRegisterData" label-width="80px" :rules="rules">
+        <el-tabs tab-position="left">
+          <el-tab-pane label="基本信息">
+            <el-row>
+              <template>
+                <slot v-if="showModel">
+                  <el-col :span="8" align="center" style="height:180px">
+                    <div id="qrcode"></div>
+                  </el-col>
+                  <el-col :span="16">
+                    <el-col :span="16">
+                      <el-form-item label="资产名称" prop="name">
+                        <el-input v-model="addRegisterData.name" placeholder="资产名称" disabled="true"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="16">
+                      <el-form-item label="资产类型" prop="classesId">
+                        <el-input
+                          v-model="addRegisterData.classesName"
+                          placeholder="资产名称"
+                          disabled="true"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="16">
+                      <el-form-item label="登记部门" prop="organId">
+                        <el-input
+                          v-model="addRegisterData.organName"
+                          placeholder="资产名称"
+                          disabled="true"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-col>
+                </slot>
+                <slot v-else>
+                  <el-col :span="8">
+                    <el-form-item label="资产名称" prop="name">
+                      <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="资产类型" prop="classesId">
+                      <classes-select v-model="addRegisterData.classesId"></classes-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="登记部门" prop="organId">
+                      <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
+                    </el-form-item>
+                  </el-col>
+                </slot>
+              </template>
+            </el-row>
+            <el-row>
+              <el-col :span="8">
+                <el-form-item label="规格型号">
+                  <el-input v-model="addRegisterData.specification" placeholder="规格型号"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="SN号">
+                  <el-input v-model="addRegisterData.sn" placeholder="SN号"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="计量单位">
+                  <el-input v-model="addRegisterData.metering" placeholder="计量单位"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="金额" prop="money">
+                  <el-input v-model="addRegisterData.money" placeholder="金额"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="购买时间" prop="purchaseTime">
+                  <el-date-picker
+                    v-model="addRegisterData.purchaseTime"
+                    type="date"
+                    style="width:100%;"
+                    placeholder="购买时间"
+                    value-format="yyyy-MM-dd"
+                    format="yyyy-MM-dd"
+                  ></el-date-picker>
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="16">
+                <el-form-item label="备注">
+                  <el-input type="textarea" v-model="addRegisterData.remark" placeholder="备注"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane label="维保信息">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="供应商">
+                  <el-input v-model="addRegisterData.supplier" placeholder="供应商名称"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系人">
+                  <el-input v-model="addRegisterData.contacts" placeholder="联系人"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系方式">
+                  <el-input v-model="addRegisterData.tell" placeholder="联系方式"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="维保到期">
+                  <el-date-picker
+                    v-model="addRegisterData.expiryTime"
+                    type="date"
+                    style="width:100%;"
+                    placeholder="维保到期时间"
+                    format="yyyy-MM-dd"
+                  ></el-date-picker>
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="24">
+                <el-form-item label="维保说明">
+                  <el-input type="textarea" v-model="addRegisterData.explain" placeholder="维保说明"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+        </el-tabs>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button v-if="!showModel" type="primary" @click="addRegister">确 定</el-button>
+        <el-button @click="addDialogTableVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 <script>
+import QRCode from "qrcodejs2";
 import daBreadcrumb from "@/components/da-breadcrumb";
 import daAssetsStatus from "@/components/da-assets-status";
+import classesSelect from "../Classes/classesSelect";
+import organSelect from "../sys/OrganSelect";
+import { isDecimal } from "@/libs/validator.js";
 export default {
-    data(){
-        return {
-            activeName:'bill',
-            searchKey:'',
-            showDialogTableVisible:false,
-            showRegisterData:{},
-            delRegisterIds:[],
-            registerData: [
-                {
-                    "id":1,
-                    "bar_code":"0191063662278",
-                    "name":"打印机",
-                    "type_id":"02",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":2980,
-                    "company":"光威",
-                    "department":"",
-                    "purchase_time":"Sat Aug 25 2018 23:25:52 GMT+0800 (中国标准时间)",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":2,
-                    "bar_code":"0191063662276",
-                    "name":"切纸机",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":1,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":3,
-                    "bar_code":"0191063662267",
-                    "name":"复印机",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":2,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":4,
-                    "bar_code":"0191064662278",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":5,
-                    "bar_code":"0191063662270",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":12,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":6,
-                    "bar_code":"0191063662277",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":7,
-                    "bar_code":"0191063662272",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":4,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":8,
-                    "bar_code":"0191063662271",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":9,
-                    "bar_code":"0191063662252",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":10,
-                    "bar_code":"0191063662223",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                },
-                {
-                    "id":11,
-                    "bar_code":"0191063662233",
-                    "name":"电风扇",
-                    "type_id":"03",
-                    "specification":"索尼3000",
-                    "sn":49090343,
-                    "metering":"台",
-                    "money":280,
-                    "company":"南京",
-                    "department":"",
-                    "purchase_time":"1529254718034",
-                    "user_id":1001,
-                    "manager_id":102,
-                    "status":0,
-                    "address":"办公室北区",
-                    "duration_use":"",
-                    "source":"购入",
-                    "remarks":"",
-                    "image":"http://placeholder.qiniudn.com/200x200",
-                    "supplier":"索尼赛格旗舰店",
-                    "contacts":"张素芳",
-                    "tell":13131312323,
-                    "expiry_time":"1529254718034",
-                    "explain":""
-                }
-            ]
+  components: {
+    "classes-select": classesSelect,
+    "organ-select": organSelect,
+    daBreadcrumb,
+    daAssetsStatus
+  },
+  data() {
+    return {
+      rules: {
+        name: [{ required: true, message: "请输入" }],
+        classesId: [{ required: true, message: "请选择" }],
+        money: [{ validator: isDecimal }],
+        purchaseTime: [{ required: true, message: "请输入" }],
+        organId: [{ required: true, message: "请选择" }]
+      },
+      status:[
+        {label:'空闲',value:0},
+        {label:'借用',value:2},
+        {label:'领用',value:3},
+        {label:'维修',value:4},
+        {label:'报废',value:5}
+      ],
+      addDialogTableVisible: false,
+      editDialogTableVisible: false,
+      showModel: false,
+      addRegisterData: {},
+      searchForm: {},
+      selectedRows: [],
+      registerData: [],
+      pageSize: 10,
+      currentPage: 1,
+      totalSize: 0
+    };
+  },
+  methods: {
+    addRegister() {
+      //addRegisterData 要添加的资产数据
+
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          let _self = this;
+          this.addDialogTableVisible = false;
+
+          this.$api.post("/asset/save", _self.addRegisterData).then(res => {
+            _self.addRegisterData = {};
+            _self.$message({
+              type: "success",
+              message: "添加成功!"
+            });
+            _self.addDialogTableVisible = false;
+            _self.load();
+          });
         }
+      });
     },
-    methods:{
-        showRegister(row){
-            this.showDialogTableVisible = true;
-            this.showRegisterData = row;
-        },
-        handleSelectionChange(val){
-            //获取选中的删除条目ID
-            this.delRegisterIds = val.map((val)=>{
-                return val.date
-            })
-        }
+    showRegister(row) {
+      this.showModel = true;
+      this.addRegisterData = row;
+      this.addDialogTableVisible = true;
+      this.$nextTick(function() {
+        document.getElementById("qrcode").innerHTML = "";
+        let qrcode = new QRCode("qrcode", {
+          width: 150,
+          height: 150,
+          text: row.code, // 二维码地址
+          colorDark: "#000",
+          colorLight: "#fff"
+        });
+      });
     },
-    components:{
-        daBreadcrumb,
-        daAssetsStatus
+    changeOrganId(organId) {
+      this.addRegisterData.organId = organId;
+    },
+    delRegister() {
+      let _self = this;
+      if (this.selectedRows.length == 0) {
+        this.$message("请选中要删除的数据条目！");
+        return;
+      }
+      let delRegisterIds = this.selectedRows.map(r => r.id);
+      this.$confirm("此操作将永久删除该数据, 是否继续?", "资产删除确认提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          //要删除的ID数组 this.delRegisterIds
+          _self.$api
+            .post("/asset/delete", { ids: delRegisterIds })
+            .then(res => {
+              if (res.code == 0) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                _self.load();
+              } else {
+                this.$message({
+                  type: "warning",
+                  message: res.msg
+                });
+              }
+            });
+        })
+        .catch(error => {
+          console.log(error);
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    handleSelectionChange(val) {
+      //获取选中的删除条目ID
+      //console.log(val)
+      this.selectedRows = val;
+    },
+    print() {
+      let _self = this;
+      let pLength = _self.selectedRows.length;
+      if (pLength == 0) {
+        this.$message({
+          type: "error",
+          message: "请先选择需要打印的资产信息!"
+        });
+        return;
+      }
+
+      let head_str = "<html><head><title>资产标签打印</title></head>"; //先生成头部
+      head_str +=
+        "<style media='print'>" +
+        "@page {               " +
+        "  size: auto;         " +
+        "     margin: 0mm;     " +
+        "   }                  ";
+
+      head_str += "</style><body>";
+      let foot_str = "</body></html>"; //生成尾部
+
+      let printContent = "";
+      for (let i = 0; i < pLength; i++) {
+        printContent +=
+          "<table style='margin:15px;page-break-after:always;'><tr >";
+        printContent +=
+          "<td style='padding:10px'>" + "<div id='XQ" + i + "'></div>";
+        printContent += "</td>";
+        printContent += "<td>";
+        printContent +=
+          "<label style='display:block'>资产名称：" +
+          _self.selectedRows[i].name +
+          "</label>";
+        printContent +=
+          "<label style='display:block;margin-top:10px'>资产类型：" +
+          _self.selectedRows[i].classes.name +
+          "</label>";
+        printContent +=
+          "<label style='display:block;margin-top:10px'>登记部门：" +
+          _self.selectedRows[i].organName +
+          "</label>";
+        printContent += "</td></tr>";
+        printContent += "</table>";
+      }
+      let oldStr = document.body.innerHTML;
+      //构建新网页(关键步骤,必须先构建新网页,在生成二维码,否则不能显示二维码)
+      document.body.innerHTML = head_str + printContent + foot_str;
+      for (let j = 0; j < _self.selectedRows.length; j++) {
+        document.getElementById("XQ" + j).innerHTML = ""; //置空
+        let contentStr = _self.selectedRows[j].code; //二维码内容
+        let qrcode = new QRCode(document.getElementById("XQ" + j), {
+          text: contentStr,
+          width: 100,
+          height: 100,
+          colorDark: "#000000",
+          colorLight: "#ffffff"
+        });
+      }
+      window.print(); //打印刚才新建的网页
+      document.body.innerHTML = oldStr;
+      window.location.reload();
+      return false;
+    },
+    load() {
+      let _self = this;
+      this.searchForm.pageSize=this.pageSize;
+      this.searchForm.y=this.currentPage;
+      this.$api
+        .get("/asset/list", this.searchForm)
+        .then(res => {
+          if (res.code == 0 && res.data) {
+            _self.registerData = res.data.result;
+            //_self.currentPage=res.data.currentPage;
+            _self.totalSize = res.data.totalSize;
+          }
+        });
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.load();
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.load();
     }
-}
+  },
+  mounted() {
+    this.load();
+  }
+};
 </script>
 <style lang="less">
 .assets-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  &:hover {
+    border-color: #409eff;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
     width: 100%;
-    box-sizing: border-box;
-    &:hover {
-        border-color: #409EFF;
-    }
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 100%;
-        height: 100px;
-        line-height: 100px;
-        text-align: center;
-    }
-    .avatar {
-        width: 100%;
-        height: 100px;
-        display: block;
-    }
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100%;
+    height: 100px;
+    display: block;
+  }
 }
 .show-dialog {
-    .el-input input,.el-textarea textarea{
-        background-color: #fff!important; 
-        color: #606266!important;
-        cursor: default!important;
-    }
+  .el-input input,
+  .el-textarea textarea {
+    background-color: #fff !important;
+    color: #606266 !important;
+    cursor: default !important;
+  }
 }
 </style>
