@@ -17,7 +17,7 @@ export default {
                 5:{label:"报废",color:"#F56C6C"},
                
                 6:{label:"已归还",color:"#7465EA"},
-                8:{label:"已完成",color:"#67C23A"},
+                7:{label:"已恢复",color:"#67C23A"},
                 9:{label:"已取消",color:"#E6A23C"}, 
                 /* 报修状态 10 - 14 */
                 10:{label:"已报修",color:"#409EFF"},

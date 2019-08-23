@@ -3,46 +3,8 @@
     <da-breadcrumb></da-breadcrumb>
     <el-card class="box-card">
       <el-tabs v-model="activeName">
-        <el-tab-pane label="资产登记" name="register">
+        <el-tab-pane label="资产变更" name="register">
           <el-row>
-            <el-col :span="18">
-              <el-button
-                type="primary"
-                :size="$store.state.size"
-                @click="addDialogTableVisible=true;showModel=false;addRegisterData={}"
-                icon="el-icon-plus"
-              >新增</el-button>
-              <el-button
-                type="danger"
-                :size="$store.state.size"
-                @click="delRegister"
-                icon="el-icon-delete"
-              >删除</el-button>
-              <el-button
-                type="primary"
-                :size="$store.state.size"
-                @click="print"
-                icon="el-icon-print"
-              >打印资产标签</el-button>
-              <!--
-                            <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
-                                <i class="el-icon-daochu"></i> 导入/导出
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item>下载导入模板</el-dropdown-item>
-                                    <el-dropdown-item>批量导入资产</el-dropdown-item>
-                                    <el-dropdown-item divided>导出资产</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                            
-                            <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
-                                <i class="el-icon-printer"></i> 打印
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item>打印资产标签</el-dropdown-item>
-                                    <el-dropdown-item divided>打印资产卡片</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-              -->
-            </el-col>
             <el-col :span="6">
               <el-input
                 placeholder="请输入资产名称"
@@ -83,7 +45,7 @@
             <el-table-column prop="registerUserName" label="登记人" width="120"></el-table-column>
             <el-table-column align="center" label="操作">
               <template slot-scope="scope">
-                <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
+                <el-button @click="editRegister(scope.row)" type="text" :size="$store.state.size">变更</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -107,57 +69,26 @@
         <el-tabs tab-position="left">
           <el-tab-pane label="基本信息">
             <el-row>
-            <template>
-              <slot v-if="showModel">
-                
                   <el-col :span="8" align="center" style="height:180px">
                     <div id="qrcode"></div>
                   </el-col>
                   <el-col :span="16">
                     <el-col :span="16">
                       <el-form-item label="资产名称" prop="name">
-                        <el-input v-model="addRegisterData.name" placeholder="资产名称" disabled="true"></el-input>
+                        <el-input v-model="addRegisterData.name" placeholder="资产名称" ></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="16">
                       <el-form-item label="资产类型" prop="classesId">
-                        <el-input
-                          v-model="addRegisterData.classesName"
-                          placeholder="资产名称"
-                          disabled="true"
-                        ></el-input>
+                        <classes-select v-model="addRegisterData.classesId"></classes-select>
                       </el-form-item>
                     </el-col>
                     <el-col :span="16">
                       <el-form-item label="登记部门" prop="organId">
-                        <el-input
-                          v-model="addRegisterData.organName"
-                          placeholder="资产名称"
-                          disabled="true"
-                        ></el-input>
+                        <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
                       </el-form-item>
                     </el-col>
                   </el-col>
-                
-              </slot>
-              <slot v-else>
-                <el-col :span="8">
-                  <el-form-item label="资产名称" prop="name">
-                    <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="资产类型" prop="classesId">
-                    <classes-select v-model="addRegisterData.classesId"></classes-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="登记部门" prop="organId">
-                    <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
-                  </el-form-item>
-                </el-col>
-              </slot>
-            </template>
             </el-row>
             <el-row>
               <el-col :span="8">
@@ -187,7 +118,6 @@
                     type="date"
                     style="width:100%;"
                     placeholder="购买时间"
-                    value-format="yyyy-MM-dd"
                     format="yyyy-MM-dd"
                   ></el-date-picker>
                 </el-form-item>
@@ -239,7 +169,7 @@
         </el-tabs>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button v-if="!showModel" type="primary" @click="addRegister">确 定</el-button>
+        <el-button type="primary" @click="doEdit">确 定</el-button>
         <el-button @click="addDialogTableVisible = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -282,19 +212,24 @@ export default {
     };
   },
   methods: {
-    addRegister() {
+    doEdit() {
       //addRegisterData 要添加的资产数据
 
       this.$refs["form"].validate(valid => {
         if (valid) {
           let _self = this;
-          this.addDialogTableVisible = false;
-
+          _self.addDialogTableVisible = false;
+          delete _self.addRegisterData.registerUser;
+          delete _self.addRegisterData.classes;
+          delete _self.addRegisterData.registerTime;
+          if(!_self.addRegisterData.expiryTime){
+            delete _self.addRegisterData.expiryTime;
+          }
           this.$api.post("/asset/save", _self.addRegisterData).then(res => {
             _self.addRegisterData = {};
             _self.$message({
               type: "success",
-              message: "添加成功!"
+              message: "修改成功!"
             });
             _self.addDialogTableVisible = false;
             _self.load();
@@ -302,7 +237,7 @@ export default {
         }
       });
     },
-    showRegister(row) {
+    editRegister(row) {
       this.showModel = true;
       this.addRegisterData = row;
       this.addDialogTableVisible = true;

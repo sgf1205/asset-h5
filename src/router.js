@@ -50,7 +50,7 @@ const routeMaps = [
         path:"modify",
         name:"Modify",
         hidden:false,
-        component:()=>import('@/views/Modify/Modify'),
+        component:()=>import('@/views/Modify/edit'),
         meta:{ title:"信息修改",icon:'el-icon-xiugai'}
       },
       {

@@ -1,332 +1,347 @@
 <template>
-    <div>
-        <da-breadcrumb></da-breadcrumb>
-        <el-card class="box-card">
-            <!-- 按钮组 + 搜索栏 -->
-            <el-row>
-                <!-- 按钮组 -->
-                <el-col :span="12">
-                    <el-button type="primary" :size="$store.state.size" icon="el-icon-plus" @click="addScrap">新增</el-button>
-                    <el-button type="warning" :size="$store.state.size" icon="el-icon-plus" @click="restore">还原</el-button>
-                    <!--
-                    <el-button :size="$store.state.size" icon="el-icon-printer">打印</el-button>
-                    <el-button :size="$store.state.size" icon="el-icon-daochu">导出</el-button>
-                    -->
-                </el-col>
-                <!-- 搜索栏 -->
-                <el-col :span="12" :offset="0">
-                    <el-button :size="$store.state.size" icon="el-icon-search" style="margin-left:10px;float:right;" @click="searchDone"></el-button>
-                    <el-date-picker
-                    v-model="searchDate"
-                    type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    :size="$store.state.size"
-                    style="float:right;"
-                    >
-                    </el-date-picker>  
-                </el-col>
-            </el-row>
-            <!-- 数据表格 -->
-            <el-table
-            :data="scrapsData"
-            border
-            style="width: 100%;margin:10px 0;" @selection-change="handleSelectionChange">
-                <el-table-column fixed type="selection" width="55"></el-table-column>
-                <el-table-column
-                prop="scrap_number"
-                label="报废单号"
-                >
-                </el-table-column>
-                <el-table-column
-                prop="scrap_time"
-                label="报修时间"
-                >
-                    <template slot-scope="scope">
-                        {{scope.row.scrap_time|date}}
-                    </template>
-                </el-table-column>
-                <el-table-column
-                prop="scrap_handle_name"
-                label="处理人"
-                >
-                </el-table-column>
-                <el-table-column
-                prop="scrap_remarks"
-                label="说明"
-                style="white-space:nowrap;"
-                :show-overflow-tooltip="true"
-                ></el-table-column>                
-                <el-table-column
-                fixed="right"
-                label="操作"
-                width="100">
-                <template slot-scope="scope">
-                    <el-button @click="showScrap(scope.row)" type="text" :size="$store.state.size">查看</el-button>
-                </template>
-                </el-table-column>
-            </el-table>
+  <div>
+    <da-breadcrumb></da-breadcrumb>
+    <el-card>
+          <!-- 按钮组 + 搜索栏 -->
+          <el-row>
+            <!-- 按钮组 -->
+            <el-col :span="12">
+              <el-button
+                type="primary"
+                :size="$store.state.size"
+                icon="el-icon-plus"
+                @click="addScrapDialogVisible = true;newModel=true;addScrapForm={};selectScrapAssetsData=[]"
+              >新增</el-button>
+              <el-button
+                type="primary"
+                :size="$store.state.size"
+                icon="el-icon-xiugai"
+                @click="recovery"
+              >还原</el-button>
+            </el-col>
 
-            <!-- 分页 -->
-            <el-pagination
+            <!-- 搜索栏 -->
+            <el-col :span="12" :offset="0">
+              <el-button
+                :size="$store.state.size"
+                icon="el-icon-search"
+                style="margin-left:10px;float:right;"
+                @click="load"
+              ></el-button>
+              <el-date-picker
+                v-model="searchDate"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :size="$store.state.size"
+                style="float:right;"
+              ></el-date-picker>
+            </el-col>
+          </el-row>
+          <!-- 数据表格 -->
+          <el-table
+            :data="scraps"
+            border
+            style="width: 100%;margin:10px 0;"
+            @selection-change="handleSelectionChange"
+           
+          >
+            <el-table-column fixed type="selection" :selectable="chkstu" width="55"></el-table-column>
+            <el-table-column prop="createTime" label="状态" align="center">
+              <template slot-scope="scope">
+                <da-assets-status :status="scope.row.status"></da-assets-status>
+              </template>
+            </el-table-column>
+            <el-table-column prop="createTime" label="报废时间" align="center">
+              <template slot-scope="scope">{{scope.row.createTime|date}}</template>
+            </el-table-column>
+            <el-table-column prop="scrapUser" label="处理人" align="center"></el-table-column>
+            <el-table-column fixed="right" label="操作" align="center">
+              <template slot-scope="scope">
+                <el-button
+                  @click="handleClickShowScrap(scope.row)"
+                  type="text"
+                  :size="$store.state.size"
+                >查看</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <!-- 分页 -->
+          <el-pagination
             background
-            :page-sizes="$store.state.pageSize"
-            :page-size="$store.state.pageSize[0]"
+            :page-sizes="[5,10, 20, 30, 50]"
+            :page-size="pageSize"
             layout="sizes, prev, pager, next"
-            :total="100">
-            </el-pagination>
-        </el-card>
-        <!-- 新增报废单 -->
-        <el-dialog
-        title="新增报废单"
-        :visible.sync="addDialogVisible"
-        width="70%">
-            <el-form ref="form" :model="addDataForm" label-width="80px" :size="$store.state.size">
-                <el-row>
-                    <el-col :span="8">
-                        <el-form-item label="报废单号">
-                            <el-input v-model="addDataForm.scrap_number" disabled></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
+            :total="totalSize"
+            :current-page="currentPage"
+            @current-change="handleCurrentChange"
+          ></el-pagination>
+
+          <!-- 新增报废 -->
+          <el-dialog title="报废单" :visible.sync="addScrapDialogVisible" width="80%">
+            <el-form
+              ref="form"
+              :model="addScrapForm"
+              :rules="rules"
+              label-width="80px"
+              :size="$store.state.size"
+            >
+              <el-row>
+                <el-col :span="8">
+                  <el-form-item label="报废人" prop="scrapUser">
+                    <el-input type="text" v-model="addScrapForm.scrapUser" placeholder="报废人"></el-input>
+                  </el-form-item>
+                </el-col>
+                    <el-col :span="8" v-if="!newModel">
                         <el-form-item label="报废时间">
-                            <el-date-picker
-                            v-model="addDataForm.scrap_time"
-                            type="date"
-                            format="yyyy 年 MM 月 dd 日"
-                            value-format="timestamp"
-                            style="width:100%;"
-                            placeholder="选择报修时间">
-                            </el-date-picker>
-                        </el-form-item>
-                    </el-col> 
-                    <el-col :span="8">
-                        <el-form-item label="处理人">
-                            <el-input v-model="addDataForm.scrap_handle_name" disabled></el-input>
+                            <el-date-picker v-model="addScrapForm.createTime" />
                         </el-form-item>
                     </el-col>
-                    
-                    <el-col :span="24">
-                        <el-form-item label="说明">
-                            <el-input type="textarea" v-model="addDataForm.scrap_remarks" placeholder="报废说明"></el-input>
+                    <el-col :span="8" v-if="addScrapForm.status==7">
+                        <el-form-item label="恢复时间">
+                            <el-date-picker v-model="addScrapForm.recoveryTime" />
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-button :size="$store.state.size" @click="selectAssetsDialogVisible=true">选择资产</el-button>
-                    <el-button type="danger" :size="$store.state.size">删除</el-button>
-                </el-row>
-                <el-table :data="selectedAssetsData" border style="width: 100%;margin:10px 0;" @selection-change="handleSelectionChange">
-                    <el-table-column fixed type="selection" width="55"></el-table-column>
-                    <el-table-column prop="bar_code" label="资产条码" width="140"> </el-table-column>
-                    <el-table-column prop="name" label="资产名称" width="150"> </el-table-column>
-                    <el-table-column prop="type_id" label="资产类型" width="150"> </el-table-column>
-                    <el-table-column prop="company" label="使用公司" width="100"> </el-table-column>
-                    <el-table-column prop="department" label="使用部门" width="100"> </el-table-column>
-                    <el-table-column prop="user_id" label="使用人" width="100"> </el-table-column>
-                    <el-table-column prop="manager_id" label="管理员" width="100"> </el-table-column>
-                    <el-table-column prop="address" label="存放地点" width="100"> </el-table-column>
-                </el-table>
+              </el-row>
+             
+              <el-row>
+                
+                <el-col :span="16">
+                  <el-form-item label="说明">
+                    <el-input type="textarea" v-model="addScrapForm.remarks" placeholder="备注"></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row v-if="newModel">
+                <el-button :size="$store.state.size" @click="openSelectAssetsDialog">选择资产</el-button>
+                <el-button type="danger" :size="$store.state.size" @click="removeSelectedAsset">删除</el-button>
+              </el-row>
+              <el-table
+                :data="selectScrapAssetsData"
+                border
+                style="width: 100%;margin:10px 0;"
+                @selection-change="handleAssetSelectionChange"
+              >
+                <el-table-column fixed type="selection" width="55"></el-table-column>
+                <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
+                <el-table-column prop="classesName" label="资产类型"></el-table-column>
+                <el-table-column prop="specification" label="规格型号"></el-table-column>
+                <el-table-column prop="sn" label="序列号"></el-table-column>
+                <el-table-column prop="money" label="金额">
+                  <template slot-scope="scope">{{scope.row.money|currency}}</template>
+                </el-table-column>
+                <el-table-column prop="purchaseTime" label="购买时间">
+                  <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
+                </el-table-column>
+                <el-table-column prop="registerTime" label="登记时间">
+                  <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
+                </el-table-column>
+              </el-table>
             </el-form>
+
             <!-- 选择资产弹窗 -->
             <el-dialog
-            title="选择资产"
-            :visible.sync="selectAssetsDialogVisible"
-            width="70%" 
-            append-to-body>
-                <da-select-assets :handle="handleAddGetAssets"></da-select-assets>
-                <span slot="footer" class="dialog-footer">
-                    <el-button :size="$store.state.size" @click="selectAssetsDialogVisible = false">取 消</el-button>
-                    <el-button :size="$store.state.size" type="primary" @click="handleSelectionDone">确 定</el-button>
-                </span>
+              title="选择资产"
+              :visible.sync="selectAssetsDialogVisible"
+              width="70%"
+              append-to-body
+            >
+              <da-select-assets
+                v-if="assetsCompentReset"
+                @handle="handleAddGetAssets"
+                ref="assetsSelect"
+              ></da-select-assets>
+              <span slot="footer" class="dialog-footer">
+                <el-button :size="$store.state.size" @click="selectAssetsDialogVisible = false">取 消</el-button>
+                <el-button :size="$store.state.size" type="primary" @click="handleSelectionDone">确 定</el-button>
+              </span>
             </el-dialog>
-            <span slot="footer" class="dialog-footer">
-                <el-button :size="$store.state.size" @click="addDialogVisible = false">取 消</el-button>
-                <el-button :size="$store.state.size" type="primary" @click="addScrapDone">确 定</el-button>
+            <span v-if="newModel" slot="footer" class="dialog-footer">
+              <el-button
+                :size="$store.state.size"
+                @click="addScrapDialogVisible = false;newModel=false"
+              >取 消</el-button>
+              <el-button :size="$store.state.size" type="primary" @click="handleAddScrapDone">确 定</el-button>
             </span>
-        </el-dialog>
-
-        <!-- 查看维修单 -->
-        <el-dialog
-        title="查看报废单"
-        :visible.sync="showDialogVisible"
-        width="70%">
-            <el-form ref="form" :model="showDataForm" label-width="80px" :size="$store.state.size" disabled class="show-dialog">
-                <el-row>
-                    <el-col :span="8">
-                        <el-form-item label="报废单号">
-                            <el-input v-model="showDataForm.scrap_number" disabled></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="报废时间">
-                            <el-date-picker
-                            v-model="showDataForm.scrap_time"
-                            type="date"
-                            format="yyyy 年 MM 月 dd 日"
-                            value-format="timestamp"
-                            style="width:100%;"
-                            placeholder="选择报修时间">
-                            </el-date-picker>
-                        </el-form-item>
-                    </el-col> 
-                    <el-col :span="8">
-                        <el-form-item label="处理人">
-                            <el-input v-model="showDataForm.scrap_handle_name" disabled></el-input>
-                        </el-form-item>
-                    </el-col>
-                    
-                    <el-col :span="24">
-                        <el-form-item label="说明">
-                            <el-input type="textarea" v-model="showDataForm.scrap_remarks" placeholder="报废说明"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-table :data="showAssetsData" border style="width: 100%;margin:10px 0;">
-                    <el-table-column prop="bar_code" label="资产条码" width="140"> </el-table-column>
-                    <el-table-column prop="name" label="资产名称" width="150"> </el-table-column>
-                    <el-table-column prop="type_id" label="资产类型" width="150"> </el-table-column>
-                    <el-table-column prop="company" label="使用公司" width="100"> </el-table-column>
-                    <el-table-column prop="department" label="使用部门" width="100"> </el-table-column>
-                    <el-table-column prop="user_id" label="使用人" width="100"> </el-table-column>
-                    <el-table-column prop="manager_id" label="管理员" width="100"> </el-table-column>
-                    <el-table-column prop="address" label="存放地点" width="100"> </el-table-column>
-                </el-table>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button :size="$store.state.size" @click="showDialogVisible = false">取 消</el-button>
+            <span v-else slot="footer" class="dialog-footer">
+              <el-button
+                :size="$store.state.size"
+                @click="addScrapDialogVisible = false;newModel=false"
+              >关 闭</el-button>
             </span>
-        </el-dialog>
-    </div>
+          </el-dialog>
+    </el-card>
+  </div>
 </template>
 <script>
 import daBreadcrumb from "@/components/da-breadcrumb";
+import daAssetsStatus from "@/components/da-assets-status";
 import daSelectAssets from "@/components/da-select-assets";
+import organSelect from "../sys/OrganSelect";
 export default {
-    data:function(){
-        return {
-            searchDate:'',          //搜索数据
-            addDialogVisible:false, //添加报废单弹窗状态
-            showDialogVisible:false,//查看报废单弹窗状态
-            selectAssetsDialogVisible:false,//选择资产弹窗状态
-            addDataForm:{},         //添加报废清单
-            selectAssetsData:[],    //添加正在选择报废资产列表
-            selectedAssetsData:[],  //添加已选择选择报废资产列表
-            showDataForm:{},        //查看报废清单
-            showAssetsData:[],      //查看报废资产列表
-            scrapIds:[],            //选择的报废单 ID列表
-            scrapsData:[
-                {
-                    scrap_id:1,
-                    scrap_number:"BF20180823004",
-                    scrap_time:"1535897265806",
-                    scrap_handle_name:"李四",
-                    scrap_handle_id:1,
-                    scrap_remarks:"腐蚀严重无法修复或继续使用要发生危险！腐蚀严重无法修复或继续使用要发生危险！腐蚀严重无法修复或继续使用要发生危险！"
-                }
-            ],          //报废列表数据 
-        }
+  data() {
+    return {
+      rules: {
+        scrapUser: [{ required: true, message: "请输入", trigger: "blur" }]
+      },
+      searchDate: [],
+      addScrapDialogVisible: false,
+      addScrapForm: {},
+      selectAssetsDialogVisible: false,
+      assetsCompentReset: false,
+      selectScrapAssetsData: [], //正在选择资产
+      selectAssetsIds: [],
+      revertBorrowIds: [],
+      newModel: false,
+      scraps: [],
+      pageSize: 10,
+      currentPage: 1,
+      totalSize: 0
+    };
+  },
+  methods: {
+    chkstu(row, index) {
+      return row.status == 5 ? true : false;
     },
-    methods:{
-        //添加报废清单
-        addScrap:function(){
-            this.addDialogVisible = true;
-            this.addDataForm = Object.assign(this.addDataForm,{
-                "scrap_time":Date.now()
-            })
-        },
-        //点击确定添加报废清单
-        addScrapDone:function(){  
-            //addDataForm 要添加的资产数据
-            if(true){
-                this.addDialogVisible = false;
-                this.addDataForm = {};
+    recovery() {
+      if (this.revertBorrowIds.length == 0) {
+        this.$message("请选中要恢复的数据条目！");
+        return;
+      }
+      let _self = this;
+      this.$confirm("是否确认已报废的资产?", "资产恢复确认提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          //要归还的ID数组 this.revertBorrowIds
+          _self.$api
+            .post("/asset/scrap/recovery", { ids: this.revertBorrowIds })
+            .then(res => {
+              if (res.code == 0) {
                 this.$message({
-                    type: 'success',
-                    message: '添加成功!'
+                  type: "success",
+                  message: "归还成功!"
                 });
-            }else{
+                _self.load();
+              } else {
                 this.$message({
-                    type: 'warning',
-                    message: '添加失败!'
+                  type: "warning",
+                  message: "归还失败!" + res.msg
                 });
-            }
-        },
-        //搜索指定日期范围数据
-        searchDone:function(){
-            //searchDate
-        },
-        //显示报废清单
-        showScrap:function(row){
-            this.showDialogVisible = true;
-            this.showDataForm = row;
-
-        },
-        //选择资产
-        handleAddGetAssets:function(data){
-            this.selectAssetsData = data;
-        },
-        handleSelectionDone:function(){
-            this.selectAssetsDialogVisible = false; //隐藏选择资产弹窗
-            this.selectedAssetsData = this.selectAssetsData; //将选择的资产放入已选择资产中
-        },
-        //点击还原按钮
-        restore:function(){
-            if(this.scrapIds.length==0){
-                this.$message('请选中要还原的数据条目！');
-                return;
-            }
-            this.$confirm('此操作将还原该数据, 是否继续?', '资产还原确认提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                //要还原的资产
-                if(true){
-                    this.$message({
-                        type: 'success',
-                        message: '还原成功!'
-                    });
-                    //获取最新 报废单列表
-                    this.scrapsData = []
-                }else{
-                    this.$message({
-                        type: 'warning',
-                        message: '还原失败!'
-                    });
-                }
-                
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消还原'
-                });          
+              }
             });
-        },
-        //选择 指定报废单
-        handleSelectionChange:function(val){
-            //获取选中的删除条目ID
-            this.scrapIds = val.map((val)=>{
-                return val.scrap_number
-            })
-        },
-        searchDone:function(){
-
-        }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消归还"
+          });
+        });
     },
-    components:{
-        daBreadcrumb,
-        daSelectAssets,
+    handleSelectionChange(val) {
+      //获取选中的删除条目ID
+      this.revertBorrowIds = val.map(val => {
+        return val.id;
+      });
+    },
+
+    changeOrganId(organId) {
+      this.addScrapForm.organId = organId;
+    },
+    handleClickShowScrap(data) {
+      this.addScrapDialogVisible = true;
+      this.addScrapForm = data;
+      this.selectScrapAssetsData = data.items.map(item => item.asset);
+      this.newModel = false;
+    },
+    handleAddGetAssets(data) {
+      //正在选择资产
+      this.selectScrapAssetsData = data;
+    },
+    openSelectAssetsDialog() {
+      this.selectAssetsDialogVisible = true;
+      this.assetsCompentReset = false;
+      this.$nextTick(() => {
+        this.assetsCompentReset = true;
+      });
+    },
+    handleSelectionDone() {
+      this.$refs.assetsSelect.handleSelectionDone();
+      this.selectAssetsDialogVisible = false;
+    },
+    handleAssetSelectionChange(val) {
+      this.selectAssetsIds = val.map(v => v.id);
+    },
+    removeSelectedAsset() {
+      if (this.selectAssetsIds.length > 0) {
+        this.selectScrapAssetsData = this.selectScrapAssetsData.filter(
+          asset => this.selectAssetsIds.indexOf(asset.id) == -1
+        );
+      }
+    },
+    handleAddScrapDone() {
+      let _self = this;
+      if (this.selectScrapAssetsData.length == 0) {
+        _self.$message({
+          type: "error",
+          message: "请先选择资产"
+        });
+        return;
+      }
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          _self.addScrapForm.assetIds = _self.selectScrapAssetsData.map(
+            val => val.id
+          );
+          _self.$api.post("/asset/scrap/save", _self.addScrapForm).then(res => {
+            if (res.code == 0) {
+              _self.addScrapForm = {};
+              _self.$message({
+                type: "success",
+                message: "添加成功!"
+              });
+              _self.addScrapDialogVisible = false;
+              _self.load();
+            }
+          });
+        }
+      });
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.load();
+    },
+    load() {
+      let searchForm = {};
+      searchForm.pageSize = this.pageSize;
+      searchForm.currentPage = this.currentPage;
+      searchForm.type = 2;
+      if (this.searchDate.length != 0) {
+        searchForm.startCreateDate = this.searchDate[0];
+        searchForm.endCreateDate = this.searchDate[1];
+      }
+
+      this.$api.post("/asset/scrap/list", searchForm).then(res => {
+        if (res.code == 0 && res.data) {
+          this.scraps = res.data.result;
+          this.totalSize = res.data.totalSize;
+        }
+      });
     }
-}
+  },
+  mounted() {
+    this.load();
+  },
+  components: {
+    daBreadcrumb,
+    daAssetsStatus,
+    daSelectAssets,
+    organSelect
+  }
+};
 </script>
-<style lang="less">
-.show-dialog {
-    .el-input input,.el-textarea textarea{
-        background-color: #fff!important; 
-        color: #606266!important;
-        cursor: default!important;
-    }
-}
-</style>
+
+
