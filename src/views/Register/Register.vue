@@ -71,7 +71,7 @@
             <el-table-column prop="specification" label="规格型号" width="100"></el-table-column>
             <el-table-column prop="sn" label="序列号" width="100"></el-table-column>
             <el-table-column align="center" prop="metering" label="计量单位" width="80"></el-table-column>
-            <el-table-column prop="money" label="金额" width="100">
+            <el-table-column prop="money" label="资产价格" width="100">
               <template slot-scope="scope">{{scope.row.money|currency}}</template>
             </el-table-column>
             <el-table-column prop="purchaseTime" label="购买时间" width="120">
@@ -176,7 +176,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="金额" prop="money">
+                <el-form-item label="资产价格" prop="money">
                   <el-input v-model="addRegisterData.money" placeholder="金额"></el-input>
                 </el-form-item>
               </el-col>

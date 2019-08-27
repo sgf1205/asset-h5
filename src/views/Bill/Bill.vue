@@ -82,7 +82,7 @@
         <el-table-column align="center" prop="name" label="资产名称" width="260"></el-table-column>
         <el-table-column align="center" prop="classesName" label="资产类型" width="150"></el-table-column>
         <el-table-column align="center" prop="usingOrganName" label="当前使用部门" width="200"></el-table-column>
-        <el-table-column align="center" prop="money" label="金额" width="100">
+        <el-table-column align="center" prop="money" label="资产价格" width="100">
           <template slot-scope="scope">{{scope.row.money|currency}}</template>
         </el-table-column>
         <el-table-column prop="purchaseTime" label="购买时间" width="120">

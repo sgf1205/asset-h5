@@ -73,7 +73,6 @@ export default {
       rules: {
         name: [{ required: true, message: "请输入", trigger: "blur" }],
         account: [{ required: true, message: "请输入", trigger: "blur" }],
-        organId: [{ required: true, message: "请选择", trigger: "blur" }],
         role: [{ required: true, message: "请选择", trigger: "blur" }]
       },
       searchDate: "",
