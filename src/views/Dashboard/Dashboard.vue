@@ -93,33 +93,55 @@ export default {
         }
         return {
             assetsProfile:{
-                use:46,
-                unused:54
+                use:0,
+                unused:0
             },
             assetsState: {
-                columns: ['闲置', '在用', '报废'],
+                columns: ['闲置', '在用', '报废','维修'],
                 rows: [
-                    { 'name': '闲置', 'value': 1393 },
-                    { 'name': '在用', 'value': 3530 },
-                    { 'name': '报废', 'value': 2923 },
+                    { 'name': '闲置', 'value': 0 },
+                    { 'name': '在用', 'value': 0 },
+                    { 'name': '维修', 'value': 0 },
+                    { 'name': '报废', 'value': 0 },
                 ]
             },
             classCensus: {
                 columns: ['分类', '数量'],
-                rows: [
-                    { '分类': '土地、房屋及构筑物', '数量': 1393},
-                    { '分类': '专用设备', '数量': 3530},
-                    { '分类': '电气设备', '数量': 2923},
-                    { '分类': '电子产品及通信设备', '数量': 430},
-                    { '分类': '文艺体育设备', '数量': 923},
-                    { '分类': '图书文物及陈列品', '数量': 1920},
-                    { '分类': '家具用具及其他类', '数量': 620}
-                ]
+                rows: [ ]
             }
         }
     },
     created(){
         // console.log(this)
+        let _this=this;
+        this.$api.get("/asset/statistics?type=classes").then(
+            res=>{
+                if(res.code==0){
+                    res.data.forEach(
+                        statistics=>{
+                            
+                            _this.assetsState.rows[0].value+=statistics.freeNum;
+                            _this.assetsState.rows[1].value+=statistics.usedBorrowNum+statistics.usedReceiveNum;
+                            _this.assetsState.rows[2].value+=statistics.maintainNum;
+                            _this.assetsState.rows[3].value+=statistics.scrappedNum;
+                        }
+                    );
+                    _this.assetsProfile.use=_this.assetsState.rows[1].value*100/(_this.assetsState.rows[0].value+_this.assetsState.rows[1].value);
+                    _this.assetsProfile.unused=_this.assetsState.rows[0].value*100/(_this.assetsState.rows[0].value+_this.assetsState.rows[1].value);
+                }
+            }
+        )
+        this.$api.get("/asset/statistics?type=organ").then(
+            res=>{
+                if(res.code==0){
+                    res.data.forEach(
+                        statistics=>{
+                            _this.classCensus.rows.push({'分类': statistics.type, '数量': (statistics.freeNum+statistics.usedBorrowNum+statistics.usedReceiveNum+statistics.maintainNum)});
+                        }
+                    );
+                }
+            }
+        )
     },
     components:{
         daBreadcrumb,
