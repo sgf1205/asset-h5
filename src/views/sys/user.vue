@@ -7,6 +7,7 @@
           <!-- 按钮组 + 搜索栏 -->
           <el-row>
             <!-- 按钮组 -->
+            <!--
             <el-col :span="12">
               <el-button
                 type="primary"
@@ -16,7 +17,7 @@
               >新增用户</el-button>
               
             </el-col>
-          
+            -->
           </el-row>
 
           <!-- 数据表格 -->
@@ -27,7 +28,9 @@
             <el-table-column align="center" prop="roleName" label="角色" ></el-table-column>
             <el-table-column fixed="right" label="操作" width="200">
               <template slot-scope="scope">
+                <!--
                 <el-button @click="del(scope.row)" type="text" :size="$store.state.size">删除</el-button>
+                -->
                 <el-button type="text" :size="$store.state.size" @click="edit(scope.row)">编辑</el-button>
                 <el-button type="text" :size="$store.state.size" @click="restPwd(scope.row)">重置密码</el-button>
               </template>
