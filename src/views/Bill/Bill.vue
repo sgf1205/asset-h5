@@ -12,12 +12,12 @@
         <el-row>
           <el-col span="8">
             <el-form-item label="登记部门">
-              <organ-select :v-model="searchForm.registerOrganId" @changeId="changeOrganId"></organ-select>
+              <organ-select :v-model="searchForm.registerOrganId" @changeId="changeRegisterId"></organ-select>
             </el-form-item>
           </el-col>
           <el-col span="8">
             <el-form-item label="使用部门">
-              <organ-select :v-model="searchForm.usingOrganId" @changeId="changeOrganId"></organ-select>
+              <organ-select :v-model="searchForm.usingOrganId" @changeId="changeUsingOrganId"></organ-select>
             </el-form-item>
           </el-col>
           <el-col span="8">
@@ -80,11 +80,9 @@
           </template>
         </el-table-column>
         <el-table-column align="center" prop="name" label="资产名称" width="260"></el-table-column>
-        <el-table-column prop="classesName" label="资产类型" width="150"></el-table-column>
-        <el-table-column prop="specification" label="规格型号" width="100"></el-table-column>
-        <el-table-column prop="sn" label="序列号" width="100"></el-table-column>
-        <el-table-column align="center" prop="metering" label="计量单位" width="80"></el-table-column>
-        <el-table-column prop="money" label="金额" width="100">
+        <el-table-column align="center" prop="classesName" label="资产类型" width="150"></el-table-column>
+        <el-table-column align="center" prop="usingOrganName" label="当前使用部门" width="200"></el-table-column>
+        <el-table-column align="center" prop="money" label="金额" width="100">
           <template slot-scope="scope">{{scope.row.money|currency}}</template>
         </el-table-column>
         <el-table-column prop="purchaseTime" label="购买时间" width="120">
@@ -332,6 +330,12 @@ export default {
         });
       });
     },
+    changeRegisterId(organId){
+      this.searchForm.registerOrganId=organId;
+    },
+    changeUsingOrganId(organId){
+      this.searchForm.usingOrganId=organId;
+    },
     changeOrganId(organId) {
       this.addRegisterData.organId = organId;
     },
@@ -446,7 +450,7 @@ export default {
     load() {
       let _self = this;
       this.searchForm.pageSize=this.pageSize;
-      this.searchForm.y=this.currentPage;
+      this.searchForm.currentPage=this.currentPage;
       this.$api
         .get("/asset/list", this.searchForm)
         .then(res => {

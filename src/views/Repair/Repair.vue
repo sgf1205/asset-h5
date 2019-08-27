@@ -17,7 +17,7 @@
                     :size="$store.state.size"
                     icon="el-icon-xiugai"
                     @click="finish"
-                >修复完成</el-button>
+                >完成维修</el-button>
             </el-col>
 
             <!-- 搜索栏 -->
