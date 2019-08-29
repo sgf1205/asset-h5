@@ -80,18 +80,23 @@
           </template>
         </el-table-column>
         <el-table-column align="center" prop="name" label="资产名称" width="260"></el-table-column>
-        <el-table-column align="center" prop="classesName" label="资产类型" width="150"></el-table-column>
-        <el-table-column align="center" prop="usingOrganName" label="当前使用部门" width="200"></el-table-column>
-        <el-table-column align="center" prop="money" label="资产价格" width="100">
-          <template slot-scope="scope">{{scope.row.money|currency}}</template>
-        </el-table-column>
-        <el-table-column prop="purchaseTime" label="购买时间" width="120">
-          <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
-        </el-table-column>
-        <el-table-column prop="registerTime" label="登记时间" width="120">
+        <el-table-column align="center" prop="classesName" label="资产类别" width="150"></el-table-column>
+        <el-table-column align="center" prop="source" label="资产来源" width="120">
           <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
         </el-table-column>
-        <el-table-column prop="registerUserName" label="登记人" width="120"></el-table-column>
+        <el-table-column align="center" prop="organName" label="所属部门" width="120"></el-table-column>
+        <el-table-column align="center" prop="usingOrganName" label="存放地点" width="200"></el-table-column>
+        <el-table-column align="center" prop="usingTime" label="领用时间" width="120">
+          <template slot-scope="scope">{{scope.row.usingTime|date}}</template>
+        </el-table-column>
+        <el-table-column align="center" prop="money" label="资产单价" width="100">
+          <template slot-scope="scope">{{scope.row.money|currency}}</template>
+        </el-table-column>
+        <el-table-column align="center" prop="purchaseTime" label="购置时间" width="120">
+          <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
+        </el-table-column>
+        
+        
         <el-table-column align="center" label="操作">
           <template slot-scope="scope">
             <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
@@ -111,13 +116,14 @@
     </el-card>
 
     <!-- 资产登记 弹窗 -->
-    <el-dialog title="资产登记" width="70%" :visible.sync="addDialogTableVisible">
+   <el-dialog title="资产登记" width="70%" :visible.sync="addDialogTableVisible">
       <el-form ref="form" :model="addRegisterData" label-width="80px" :rules="rules">
         <el-tabs tab-position="left">
           <el-tab-pane label="基本信息">
             <el-row>
-              <template>
-                <slot v-if="showModel">
+            <template>
+              <slot v-if="showModel">
+                
                   <el-col :span="8" align="center" style="height:180px">
                     <div id="qrcode"></div>
                   </el-col>
@@ -146,30 +152,31 @@
                       </el-form-item>
                     </el-col>
                   </el-col>
-                </slot>
-                <slot v-else>
-                  <el-col :span="8">
-                    <el-form-item label="资产名称" prop="name">
-                      <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="资产类型" prop="classesId">
-                      <classes-select v-model="addRegisterData.classesId"></classes-select>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="登记部门" prop="organId">
-                      <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
-                    </el-form-item>
-                  </el-col>
-                </slot>
-              </template>
+                
+              </slot>
+              <slot v-else>
+                <el-col :span="8">
+                  <el-form-item label="资产名称" prop="name">
+                    <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="资产类别" prop="classesId">
+                    <classes-select v-model="addRegisterData.classesId"></classes-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="所属部门" prop="organId">
+                    <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
+                  </el-form-item>
+                </el-col>
+              </slot>
+            </template>
             </el-row>
             <el-row>
               <el-col :span="8">
-                <el-form-item label="规格型号">
-                  <el-input v-model="addRegisterData.specification" placeholder="规格型号"></el-input>
+                <el-form-item label="品牌型号" prop="specification">
+                  <el-input v-model="addRegisterData.specification" placeholder="品牌型号"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
@@ -183,23 +190,49 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="金额" prop="money">
-                  <el-input v-model="addRegisterData.money" placeholder="金额"></el-input>
+                <el-form-item label="单价" prop="money">
+                  <el-input v-model="addRegisterData.money" placeholder="单价"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="购买时间" prop="purchaseTime">
+                <el-form-item label="购置时间" prop="purchaseTime">
                   <el-date-picker
                     v-model="addRegisterData.purchaseTime"
                     type="date"
                     style="width:100%;"
-                    placeholder="购买时间"
+                    placeholder="购置时间"
                     value-format="yyyy-MM-dd"
                     format="yyyy-MM-dd"
                   ></el-date-picker>
                 </el-form-item>
               </el-col>
-
+              <el-col :span="8">
+                <el-form-item label="预计使用年限" prop="life" label-width="110px">
+                  <el-input v-model="addRegisterData.life" placeholder="预计使用年限"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="资产来源" prop="source">
+                  <el-input v-model="addRegisterData.source" placeholder="资产来源"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="财务记账日期" prop="accountingDate" label-width="120px">
+                  <el-date-picker
+                    v-model="addRegisterData.accountingDate"
+                    type="date"
+                    style="width:100%;"
+                    placeholder="财务记账日期"
+                    value-format="yyyy-MM-dd"
+                    format="yyyy-MM-dd"
+                  ></el-date-picker>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="财务记账凭证号" prop="accountingNo" label-width="120px">
+                  <el-input v-model="addRegisterData.accountingNo" placeholder="财务记账凭证号"></el-input>
+                </el-form-item>
+              </el-col>
               <el-col :span="16">
                 <el-form-item label="备注">
                   <el-input type="textarea" v-model="addRegisterData.remark" placeholder="备注"></el-input>
