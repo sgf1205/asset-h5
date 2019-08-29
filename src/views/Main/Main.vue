@@ -42,46 +42,38 @@
         <div class="collapse" @click="isCollapse=!isCollapse">
           <i class="el-icon-ego-menu" :class="{'icon-rotate':isCollapse}"></i>
         </div>
+        
         <el-menu
+          @open="handleOpen"
+          menu-trigger="hover"
+          class="el-menu-demo"
+          mode="horizontal"
+          @select="menuSelectHandler"
+        >
+          <el-submenu index="1"  v-if="showNotice" >
+            <template slot="title">
+              <i class="el-icon-bell"></i>
+              <span>消息</span>
+            </template>
+            <el-menu-item index="3-2" class="message" v-for="item in notices" v-bind:key="item.id">
+              <div class="left">
+                <i class="el-icon-bell"></i>
+              </div>
+              <div class="right">
+                <p>{{item.opsUser.name+" "+item.describe}}</p>
+                <span>{{item.opsTime|date}}</span>
+              </div>
+            </el-menu-item>
+          </el-submenu>
+        </el-menu>
+        <el-menu
+          @open="handleOpen"
           menu-trigger="hover"
           :router="true"
           class="el-menu-demo"
           mode="horizontal"
           @select="menuSelectHandler"
         >
-          <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-bell"></i>
-              <span>消息</span>
-            </template>
-            <el-menu-item index="3-2" class="message">
-              <div class="left">
-                <i class="el-icon-bell"></i>
-              </div>
-              <div class="right">
-                <p>新功能上线通知</p>
-                <span>2018-08-10</span>
-              </div>
-            </el-menu-item>
-            <el-menu-item index="3-2" class="message">
-              <div class="left">
-                <i class="el-icon-bell"></i>
-              </div>
-              <div class="right">
-                <p>新功能上线通知</p>
-                <span>2018-08-10</span>
-              </div>
-            </el-menu-item>
-            <el-menu-item index="3-2" class="message">
-              <div class="left">
-                <i class="el-icon-bell"></i>
-              </div>
-              <div class="right">
-                <p>新功能上线通知</p>
-                <span>2018-08-10</span>
-              </div>
-            </el-menu-item>
-          </el-submenu>
           <el-submenu index="2">
             <template slot="title">
               <i class="el-icon-admin"></i>
@@ -115,7 +107,11 @@ export default {
     return {
       isCollapse: false,
       activeNav: "Main",
-      routes: []
+      showNotice: true,
+      routes: [],
+      _gap_time:0,
+      _beforeUnload_time:0,
+      notices:[]
     };
   },
   methods: {
@@ -146,52 +142,98 @@ export default {
             throw new Error("请求报错:" + err);
           }
         });
+    },
+    handleOpen(key, keyPath) {
+        console.log(key, keyPath);
+    },
+    beforeunloadHandler() {
+      this._beforeUnload_time = new Date().getTime();
+    },
+    unloadHandler(e) {
+      this._gap_time = new Date().getTime() - this._beforeUnload_time;
+      debugger;
+      //判断是窗口关闭还是刷新
+      if (this._gap_time <= 5) {
+        //如果是登录状态，关闭窗口前，移除用户
+       this.logOut()
+      }
     }
   },
-  computed:{
-    currentUserName(){
+  computed: {
+    currentUserName() {
       return this.$store.state.currentUser.name;
     }
   },
-  created(){
-    let _self=this;
-    this.$api.get("/getCurrentUser").then(res =>{
-      if(res.code==0){
-        let user=res.data
-        _self.$store.commit("saveCurrentUser",user);
-        if (user.roleId != 0) {
-            this.$api.get("/menus").then(res=>{
-                if(res.code==0){
-                    let menus=res.data;
-                    let allMenus=_self.$router.options.routes[1].children;
-                    allMenus.forEach(m=>{
-                      if(menus.indexOf(m.name)!=-1){
-                        _self.routes.push(m);
-                      }else if(m.children){
-                        let subMenus=m.children.filter(
-                              v => menus.indexOf(v.name) != -1
-                          );
-                        if(subMenus.length>0){
-                          let _m=Object.assign({}, m)
-                          _m.children=subMenus
-                          _self.routes.push(_m);
-                        }
-                      }
-                    })
-                }
+
+  mounted() {
+    window.addEventListener("beforeunload", e => this.beforeunloadHandler(e));
+    window.addEventListener("unload", e => this.unloadHandler(e));
+  },
+  destroyed() {
+    window.removeEventListener("beforeunload", e =>
+      this.beforeunloadHandler(e)
+    );
+    window.removeEventListener("unload", e => this.unloadHandler(e));
+  },
+  created() {
+    let _self = this;
+    this.$api
+      .get("/getCurrentUser")
+      .then(res => {
+        if (res.code == 0) {
+          let user = res.data;
+          _self.$store.commit("saveCurrentUser", user);
+          if (user.roleId == _self.$store.state.roles[1].id) {
+            //普通角色不能看到通知
+            this.showNotice = false;
+          } else {
+            this.showNotice = true;
+            this.$api.get("/sys/log/list").then(res=>{
+              if(res.code==0){
+                _self.notices=res.data
+              }
             })
-        } else {  //超级管理员
-          this.routes = _self.$router.options.routes[1].children.filter(v =>v.name=='Manage');
+
+          }
+          if (user.roleId != 0) {
+            this.$api.get("/menus").then(res => {
+              if (res.code == 0) {
+                let menus = res.data;
+                let allMenus = _self.$router.options.routes[1].children;
+                allMenus.forEach(m => {
+                  if (menus.indexOf(m.name) != -1) {
+                    _self.routes.push(m);
+                  } else if (m.children) {
+                    let subMenus = m.children.filter(
+                      v => menus.indexOf(v.name) != -1
+                    );
+                    if (subMenus.length > 0) {
+                      let _m = Object.assign({}, m);
+                      _m.children = subMenus;
+                      _self.routes.push(_m);
+                    }
+                  }
+                });
+              }
+            });
+          } else {
+            //超级管理员
+            this.routes = _self.$router.options.routes[1].children.filter(
+              v => v.name == "Manage"
+            );
+          }
+          this.activeNav = _self.$route.name;
         }
-        this.activeNav = _self.$route.name;
-      }
-    }).catch(err=>{
-      if(process.env.NODE_ENV=='development'){
-        let user={roleId:0,name:"超级管理员"}
-        this.$store.commit("saveCurrentUser",user);
-        this.routes = _self.$router.options.routes[1].children.filter(v =>v.name=='Manage');
-      } 
-    })
+      })
+      .catch(err => {
+        if (process.env.NODE_ENV == "development") {
+          let user = { roleId: 0, name: "超级管理员" };
+          this.$store.commit("saveCurrentUser", user);
+          this.routes = _self.$router.options.routes[1].children.filter(
+            v => v.name == "Manage"
+          );
+        }
+      });
   }
 };
 </script>
