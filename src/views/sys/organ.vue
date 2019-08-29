@@ -16,9 +16,9 @@
                 type="primary"
                 :size="$store.state.size"
                 icon="el-icon-plus"
-                @click="addOrganForm={};saveBtnDisabed=false;addDialogVisible=true;dialogTitle='新增机构'"
-              >新增机构</el-button>
-              <span style="margin-left:10px">当前组织：{{clickNode.name}}</span>
+                @click="addOrganForm={};saveBtnDisabed=false;addDialogVisible=true;dialogTitle='新增部门'"
+              >新增部门</el-button>
+              <span style="margin-left:10px">当前部门：{{clickNode.name}}</span>
             </el-col>
           
           </el-row>
@@ -38,16 +38,16 @@
       </el-col>
     </el-row
 
-    <!-- 新增机构 -->
+    <!-- 新增部门 -->
     <el-dialog :title="dialogTitle" :visible.sync="addDialogVisible" width="40%">
       <el-form ref="form" :model="addOrganForm" label-width="80px" :rules="rules">
-        <el-form-item label="上级机构">
+        <el-form-item label="上级部门">
           <el-input v-model="clickNode.name" :disabled="true"></el-input>
         </el-form-item>
-        <el-form-item label="机构名称" prop="name">
+        <el-form-item label="部门名称" prop="name">
           <el-input v-model="addOrganForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="机构编码">
+        <el-form-item label="部门编码">
           <el-input v-model="addOrganForm.code"></el-input>
         </el-form-item>
         <el-row>
@@ -74,7 +74,7 @@ export default {
       organs: [],
       clickNodeOrgans:[],
       clickNode:{id:"0"},
-      dialogTitle:"新增机构"
+      dialogTitle:"新增部门"
     };
   },
 
@@ -92,7 +92,7 @@ export default {
                   name: 'name',
                   rootId: 0
                 };
-                res.data.push({id:0,name:"组织机构"});
+                res.data.push({id:0,name:"组织部门"});
                 let treeData=tree.toTreeData(res.data,attr)
                 _self.organs=treeData;
             }
@@ -171,7 +171,7 @@ export default {
             });
     },
     edit(row){
-      this.dialogTitle='修改机构';
+      this.dialogTitle='修改部门';
       this.addOrganForm=row;
       this.addDialogVisible=true;
       this.saveBtnDisabed=false;

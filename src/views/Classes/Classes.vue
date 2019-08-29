@@ -12,15 +12,15 @@
                 type="primary"
                 :size="$store.state.size"
                 icon="el-icon-plus"
-                @click="addForm={};saveBtnDisabed=false;addDialogVisible=true;dialogTitle='新增分类'"
-              >新增分类</el-button>
+                @click="addForm={};saveBtnDisabed=false;addDialogVisible=true;dialogTitle='新增类别'"
+              >新增类别</el-button>
             </el-col>
           </el-row>
 
           <!-- 数据表格 -->
           <el-table :data="datas" border style="width: 100%;margin:10px 0;">
-            <el-table-column align="center" prop="name" label="分类名称"></el-table-column>
-            <el-table-column align="center" prop="code" label="分类编码"></el-table-column>
+            <el-table-column align="center" prop="name" label="类别名称"></el-table-column>
+            <el-table-column align="center" prop="code" label="类别编码"></el-table-column>
             <el-table-column align="center" label="操作">
               <template slot-scope="scope">
                 <el-button @click="del(scope.row)" type="text" :size="$store.state.size">删除</el-button>
@@ -35,10 +35,10 @@
     <!-- 新增用户 -->
     <el-dialog :title="dialogTitle" :visible.sync="addDialogVisible" width="40%">
       <el-form ref="form" :model="addForm" label-width="80px" :rules="rules">
-        <el-form-item label="分类名称" prop="name">
+        <el-form-item label="类别名称" prop="name">
           <el-input v-model="addForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="分类编码" prop="code">
+        <el-form-item label="类别编码" prop="code">
           <el-input v-model="addForm.code"></el-input>
         </el-form-item>
         <el-row>
@@ -69,7 +69,7 @@ export default {
       saveBtnDisabed: false,
       addForm: {},
       datas: [],
-      dialogTitle:"新增资产分类"
+      dialogTitle:"新增资产类别"
     };
   },
 

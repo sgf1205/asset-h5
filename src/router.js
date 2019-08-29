@@ -109,14 +109,14 @@ const routeMaps = [
             name:"Classes",
             hidden:false,
             component:()=>import('@/views/Classes/Classes'),
-            meta:{ title:"资产分类"}
+            meta:{ title:"资产类别管理"}
           },
           {
             path:"organ",
             name:"organ",
             hidden:false,
             component:()=>import('@/views/sys/organ'),
-            meta:{ title:"机构管理"}
+            meta:{ title:"部门管理"}
           },
           {
             path:"user",

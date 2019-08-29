@@ -97,17 +97,17 @@
         >
           <el-table-column fixed type="selection" width="55"></el-table-column>
           <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
-          <el-table-column prop="classesName" label="资产类型"></el-table-column>
-          <el-table-column prop="specification" label="规格型号"></el-table-column>
-          <el-table-column prop="sn" label="序列号"></el-table-column>
-          <el-table-column prop="money" label="金额">
+          <el-table-column align="center" prop="classes.name" label="资产类别"></el-table-column>
+          <el-table-column align="center" prop="specification" label="品牌型号"></el-table-column>
+          <el-table-column align="center" prop="life" label="预计使用年限"></el-table-column>
+          <el-table-column align="center" prop="money" label="单价">
             <template slot-scope="scope">{{scope.row.money|currency}}</template>
           </el-table-column>
-          <el-table-column prop="purchaseTime" label="购买时间">
+          <el-table-column align="center" prop="purchaseTime" label="购置时间">
             <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
           </el-table-column>
-          <el-table-column prop="registerTime" label="登记时间">
-            <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
+          <el-table-column prop="accountingDate" label="财务记账日期">
+            <template slot-scope="scope">{{scope.row.accountingDate|date}}</template>
           </el-table-column>
         </el-table>
       </el-form>
