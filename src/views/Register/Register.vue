@@ -24,24 +24,14 @@
                 @click="print"
                 icon="el-icon-print"
               >打印资产标签</el-button>
-              <!--
-                            <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
-                                <i class="el-icon-daochu"></i> 导入/导出
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item>下载导入模板</el-dropdown-item>
-                                    <el-dropdown-item>批量导入资产</el-dropdown-item>
-                                    <el-dropdown-item divided>导出资产</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                            
-                            <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
-                                <i class="el-icon-printer"></i> 打印
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item>打印资产标签</el-dropdown-item>
-                                    <el-dropdown-item divided>打印资产卡片</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-              -->
+              <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
+                <i class="el-icon-daochu"></i> 导入/导出
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>下载导入模板</el-dropdown-item>
+                  <el-dropdown-item>批量导入资产</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
             </el-col>
             <el-col :span="6">
               <el-input
