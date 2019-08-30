@@ -79,6 +79,9 @@ export default {
   post(...params) {
     return Ajax.post(params[0], params[1]);
   },
+  download(...params) {
+    return Ajax.post(params[0], params[1],{responseType:'blob'});
+  },
   getV1(...params) {
     return Ajax.get('/v1' + params[0], { params: params[1] });
   },

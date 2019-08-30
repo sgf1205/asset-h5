@@ -10,17 +10,17 @@
         size="mini"
       >
         <el-row>
-          <el-col span="8">
+          <el-col :span="8">
             <el-form-item label="登记部门">
               <organ-select :v-model="searchForm.registerOrganId" @changeId="changeRegisterId"></organ-select>
             </el-form-item>
           </el-col>
-          <el-col span="8">
+          <el-col :span="8">
             <el-form-item label="使用部门">
               <organ-select :v-model="searchForm.usingOrganId" @changeId="changeUsingOrganId"></organ-select>
             </el-form-item>
           </el-col>
-          <el-col span="8">
+          <el-col :span="8">
             <el-form-item label="资产名称">
               <el-input
                 placeholder="请输入关键字"
@@ -31,7 +31,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col span="8">
+          <el-col :span="8">
             <el-form-item label="资产状态">
               <el-select v-model="searchForm.status">
                    <el-option
@@ -43,7 +43,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col span="16">
+          <el-col :span="16">
             <el-form-item label="资产价格" >
               <el-input-number v-model="searchForm.lowMoney" />
               至
@@ -61,6 +61,7 @@
                 :size="$store.state.size"
                 icon="el-icon-plus"
                 style="margin-left:10px;"
+                @click="download"
               >导出</el-button>
             </el-form-item>
           </el-col>
@@ -493,6 +494,28 @@ export default {
             _self.totalSize = res.data.totalSize;
           }
         });
+    },
+    download(){
+      let _this = this;
+      _this.searchForm.pageSize=9999;
+      _this.searchForm.currentPage=this.currentPage;
+      this.$api.download("/asset/export",this.searchForm).then(res=> {
+          const content = res
+          const blob = new Blob([content])
+          const fileName = '资产清单.xls'  //导出文件名称自定义
+          if ('download' in document.createElement('a')) { // 非IE下载
+            const elink = document.createElement('a')
+            elink.download = fileName
+            elink.style.display = 'none'
+            elink.href = URL.createObjectURL(blob)
+            document.body.appendChild(elink)
+            elink.click()
+            URL.revokeObjectURL(elink.href) // 释放URL 对象
+            document.body.removeChild(elink)
+          } else { // IE10+下载
+            navigator.msSaveBlob(blob, fileName)
+          }
+      })
     },
     handleSizeChange(val) {
       this.pageSize = val;
