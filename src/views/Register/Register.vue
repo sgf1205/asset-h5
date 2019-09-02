@@ -24,11 +24,14 @@
                 @click="print"
                 icon="el-icon-print"
               >打印资产标签</el-button>
-              <el-dropdown split-button type="primary" :size="$store.state.size" style="margin-left:10px;">
+              <el-dropdown split-button type="primary" 
+                  :size="$store.state.size" 
+                  style="margin-left:10px;"
+                  @command="handleCommand">
                 <i class="el-icon-daochu"></i> 导入/导出
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>下载导入模板</el-dropdown-item>
-                  <el-dropdown-item>批量导入资产</el-dropdown-item>
+                  <el-dropdown-item command="download">下载导入模板</el-dropdown-item>
+                  <el-dropdown-item command="import">批量导入资产</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
 
@@ -384,6 +387,27 @@ export default {
       //获取选中的删除条目ID
       //console.log(val)
       this.selectedRows = val;
+    },
+    handleCommand(command){
+      if(command=='download'){
+         this.$api.download("/asset/downloadTemplate").then(res=> {
+            const content = res
+            const blob = new Blob([content])
+            const fileName = '资产导入模板.xls'  //导出文件名称自定义
+            if ('download' in document.createElement('a')) { // 非IE下载
+              const elink = document.createElement('a')
+              elink.download = fileName
+              elink.style.display = 'none'
+              elink.href = URL.createObjectURL(blob)
+              document.body.appendChild(elink)
+              elink.click()
+              URL.revokeObjectURL(elink.href) // 释放URL 对象
+              document.body.removeChild(elink)
+            } else { // IE10+下载
+              navigator.msSaveBlob(blob, fileName)
+            }
+        })
+      }
     },
     print() {
       let _self = this;
