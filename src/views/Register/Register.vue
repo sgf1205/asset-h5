@@ -24,17 +24,19 @@
                 @click="print"
                 icon="el-icon-print"
               >打印资产标签</el-button>
-              <el-dropdown split-button type="primary" 
-                  :size="$store.state.size" 
-                  style="margin-left:10px;"
-                  @command="handleCommand">
+              <el-dropdown
+                split-button
+                type="primary"
+                :size="$store.state.size"
+                style="margin-left:10px;"
+                @command="handleCommand"
+              >
                 <i class="el-icon-daochu"></i> 导入/导出
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="download">下载导入模板</el-dropdown-item>
                   <el-dropdown-item command="import">批量导入资产</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-
             </el-col>
             <el-col :span="6">
               <el-input
@@ -100,9 +102,8 @@
         <el-tabs tab-position="left">
           <el-tab-pane label="基本信息">
             <el-row>
-            <template>
-              <slot v-if="showModel">
-                
+              <template>
+                <slot v-if="showModel">
                   <el-col :span="8" align="center" style="height:180px">
                     <div id="qrcode"></div>
                   </el-col>
@@ -131,26 +132,25 @@
                       </el-form-item>
                     </el-col>
                   </el-col>
-                
-              </slot>
-              <slot v-else>
-                <el-col :span="8">
-                  <el-form-item label="资产名称" prop="name">
-                    <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="资产类别" prop="classesId">
-                    <classes-select v-model="addRegisterData.classesId"></classes-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="所属部门" prop="organId">
-                    <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
-                  </el-form-item>
-                </el-col>
-              </slot>
-            </template>
+                </slot>
+                <slot v-else>
+                  <el-col :span="8">
+                    <el-form-item label="资产名称" prop="name">
+                      <el-input v-model="addRegisterData.name" placeholder="资产名称"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="资产类别" prop="classesId">
+                      <classes-select v-model="addRegisterData.classesId"></classes-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="所属部门" prop="organId">
+                      <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
+                    </el-form-item>
+                  </el-col>
+                </slot>
+              </template>
             </el-row>
             <el-row>
               <el-col :span="8">
@@ -262,6 +262,29 @@
         <el-button @click="addDialogTableVisible = false">取 消</el-button>
       </div>
     </el-dialog>
+    <!--导入EXCEL弹框-->
+    <el-dialog title="资产导入" width="300px" style="overflow:auto" :visible.sync="assetUploadVisible">
+        <el-upload
+            :on-success="uploadSuccess"
+            :headers="uploadHeaders"
+            accept=".xls"
+            ref="upload"
+            height="100px"
+            :action="uploadUrl"
+            :file-list="fileList"
+            :auto-upload="false">
+            <el-button slot="trigger" :size="$store.state.size" type="primary">选取文件</el-button>
+  
+            <el-button style="margin-left: 10px;" :size="$store.state.size" type="success" @click="submitUpload"
+                      :disabled="buttonDisabled">上传
+            </el-button>
+        </el-upload>
+        <div v-if="importResult" style="margin-top:10px;color:red">
+            导入成功：{{importResult.success}}条，导入失败：{{importResult.fail}}条
+            <el-button v-if="importResult.fail>0" :size="$store.state.size" :plain="true" @click="downloadError">下载失败结果</el-button>
+        </div>
+    
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -270,7 +293,7 @@ import daBreadcrumb from "@/components/da-breadcrumb";
 import daAssetsStatus from "@/components/da-assets-status";
 import classesSelect from "../Classes/classesSelect";
 import organSelect from "../sys/OrganSelect";
-import { isDecimal,isInteger } from "@/libs/validator.js";
+import { isDecimal, isInteger } from "@/libs/validator.js";
 export default {
   components: {
     "classes-select": classesSelect,
@@ -283,23 +306,29 @@ export default {
       rules: {
         name: [{ required: true, message: "请输入" }],
         classesId: [{ required: true, message: "请选择" }],
-        money: [{ required: true},{ validator: isDecimal }],
+        money: [{ required: true }, { validator: isDecimal }],
         purchaseTime: [{ required: true, message: "请输入" }],
         organId: [{ required: true, message: "请选择" }],
-        life: [{ required: true, message: "请输入" },{ validator: isInteger }],
+        life: [{ required: true, message: "请输入" }, { validator: isInteger }],
         source: [{ required: true, message: "请选择" }],
         specification: [{ required: true, message: "请输入" }],
         accountingDate: [{ required: true, message: "请输入" }],
-        accountingNo: [{ required: true, message: "请输入" }],
+        accountingNo: [{ required: true, message: "请输入" }]
       },
       activeName: "register",
       searchAssetName: "",
       addDialogTableVisible: false,
       editDialogTableVisible: false,
+      assetUploadVisible: false,
+      buttonDisabled:false,
+      uploadUrl:this.$api.apiHost + '/api/asset/import',
+      uploadHeaders:{'token': sessionStorage.token},
+      importResult:false,
       showModel: false,
       addRegisterData: {},
       selectedRows: [],
       registerData: [],
+      fileList: [],
       pageSize: 10,
       currentPage: 1,
       totalSize: 0
@@ -388,25 +417,33 @@ export default {
       //console.log(val)
       this.selectedRows = val;
     },
-    handleCommand(command){
-      if(command=='download'){
-         this.$api.download("/asset/downloadTemplate").then(res=> {
-            const content = res
-            const blob = new Blob([content])
-            const fileName = '资产导入模板.xls'  //导出文件名称自定义
-            if ('download' in document.createElement('a')) { // 非IE下载
-              const elink = document.createElement('a')
-              elink.download = fileName
-              elink.style.display = 'none'
-              elink.href = URL.createObjectURL(blob)
-              document.body.appendChild(elink)
-              elink.click()
-              URL.revokeObjectURL(elink.href) // 释放URL 对象
-              document.body.removeChild(elink)
-            } else { // IE10+下载
-              navigator.msSaveBlob(blob, fileName)
-            }
-        })
+    handleCommand(command) {
+      if (command == "download") {
+        this.openFullScreen('下载中，请稍后');
+        this.$api.download("/asset/downloadTemplate").then(res => {
+          const content = res;
+          const blob = new Blob([content]);
+          const fileName = "资产导入模板.xls"; //导出文件名称自定义
+          if ("download" in document.createElement("a")) {
+            // 非IE下载
+            const elink = document.createElement("a");
+            elink.download = fileName;
+            elink.style.display = "none";
+            elink.href = URL.createObjectURL(blob);
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href); // 释放URL 对象
+            document.body.removeChild(elink);
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, fileName);
+          }
+        });
+      } else if ((command = "import")) {
+        this.fileList=[];
+        this.buttonDisabled = false;
+        this.importResult=undefined;
+        this.assetUploadVisible = true;
       }
     },
     print() {
@@ -477,7 +514,7 @@ export default {
       let _self = this;
       this.$api
         .get("/asset/list", {
-          status:0,
+          status: 0,
           name: this.searchAssetName,
           pageSize: this.pageSize,
           currentPage: this.currentPage
@@ -497,6 +534,51 @@ export default {
     handleCurrentChange(val) {
       this.currentPage = val;
       this.load();
+    },
+    submitUpload(){
+      this.$refs.upload.submit()
+      this.buttonDisabled = true
+    },
+    uploadSuccess(res) {
+      this.importResult=res.data;
+      this.$message({
+        type: "success",
+        message: "导入成功!"
+      });
+      //this.assetUploadVisible = false;
+    },
+    downloadError(){
+      this.openFullScreen('下载中，请稍后');
+      this.$api.download("/asset/downloadError").then(res => {
+          const content = res;
+          const blob = new Blob([content]);
+          const fileName = "资产导入错误记录.xls"; //导出文件名称自定义
+          if ("download" in document.createElement("a")) {
+            // 非IE下载
+            const elink = document.createElement("a");
+            elink.download = fileName;
+            elink.style.display = "none";
+            elink.href = URL.createObjectURL(blob);
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href); // 释放URL 对象
+            document.body.removeChild(elink);
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, fileName);
+          }
+        });
+    },
+    openFullScreen(title) {
+        let loading = this.$loading({
+          lock: true,
+          text: title,
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+        setTimeout(() => {
+          loading.close();
+        }, 2000);
     }
   },
   mounted() {

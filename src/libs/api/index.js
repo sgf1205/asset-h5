@@ -101,5 +101,6 @@ export default {
    */
   getAll(...params) {
     return axios.all(params);
-  }
+  },
+  apiHost
 }
