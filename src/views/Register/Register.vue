@@ -545,7 +545,7 @@ export default {
         type: "success",
         message: "导入成功!"
       });
-      //this.assetUploadVisible = false;
+      this.load();
     },
     downloadError(){
       this.openFullScreen('下载中，请稍后');
