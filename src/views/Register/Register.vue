@@ -460,10 +460,16 @@ export default {
       let head_str = "<html><head><title>资产标签打印</title></head>"; //先生成头部
       head_str +=
         "<style media='print'>" +
+        "body{                " +
+        "  width:40mm;       " +
+        "  height:30mm;      " +
+        "  font-size:9pt;    " +
+        "}                    " +
+        "@media print{ width:40mm;height:30mm;font-size:9pt; }       "  +
         "@page {               " +
-        "  size: auto;         " +
-        "     margin: 0mm;     " +
-        "   }                  ";
+        "   size: 40mm 30mm; "+
+        "   margin: 1mm;    " +
+        "}                    ";
 
       head_str += "</style><body>";
       let foot_str = "</body></html>"; //生成尾部
@@ -471,21 +477,21 @@ export default {
       let printContent = "";
       for (let i = 0; i < pLength; i++) {
         printContent +=
-          "<table style='margin:15px;page-break-after:always;'><tr >";
+          "<!--startPrint--><table style='page-break-after:always;'><tr >";
         printContent +=
-          "<td style='padding:10px'>" + "<div id='XQ" + i + "'></div>";
+          "<td>" + "<div id='XQ" + i + "'></div>";
         printContent += "</td>";
-        printContent += "<td>";
+        printContent += "<td style='padding-left:2mm'>";
         printContent +=
           "<label style='display:block'>资产名称：" +
           _self.selectedRows[i].name +
           "</label>";
         printContent +=
-          "<label style='display:block;margin-top:10px'>资产类型：" +
+          "<label style='display:block;'>资产类型：" +
           _self.selectedRows[i].classes.name +
           "</label>";
         printContent +=
-          "<label style='display:block;margin-top:10px'>登记部门：" +
+          "<label style='display:block;'>登记部门：" +
           _self.selectedRows[i].organName +
           "</label>";
         printContent += "</td></tr>";
@@ -499,8 +505,8 @@ export default {
         let contentStr = _self.selectedRows[j].code; //二维码内容
         let qrcode = new QRCode(document.getElementById("XQ" + j), {
           text: contentStr,
-          width: 100,
-          height: 100,
+          width: 60,
+          height: 60,
           colorDark: "#000000",
           colorLight: "#ffffff"
         });
