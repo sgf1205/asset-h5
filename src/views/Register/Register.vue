@@ -286,14 +286,14 @@
     
     </el-dialog>
 
-    <div style="display:hidden;font-size:9pt" ref="printDiv">
-      <table v-for="(obj,idx) in selectedRows">
+    <div style="display:hidden;font-size:3pt" ref="printDiv">
+      <table v-for="(obj,idx) in printList">
         <Tr>
           <td><div :id='"XQ"+idx'></div></td>
           <td>
-            <label style='display:block'>资产名称：{{obj.name}}</label>
-            <label style='display:block'>资产类型：{{obj.classesName}}</label>
-            <label style='display:block'>资产部门：{{obj.organName}}</label>
+            <label style='display:block;font-size:3pt'>资产名称：{{obj.name}}</label>
+            <label style='display:block;font-size:3pt'>资产类型：{{obj.classesName}}</label>
+            <label style='display:block;font-size:3pt'>资产部门：{{obj.organName}}</label>
           </td>
         </Tr>
       </table>
@@ -343,6 +343,7 @@ export default {
       selectedRows: [],
       registerData: [],
       fileList: [],
+      printList:[],
       pageSize: 10,
       currentPage: 1,
       totalSize: 0
@@ -461,31 +462,41 @@ export default {
       }
     },
     print(){
-      for (let j = 0; j < this.selectedRows.length; j++) {
-        document.getElementById("XQ" + j).innerHTML = ""; //置空
-        let contentStr = this.selectedRows[j].code; //二维码内容
-        let qrcode = new QRCode(document.getElementById("XQ" + j), {
-          text: contentStr,
-          width: 60,
-          height: 60,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      }
-      let mWindow = window.open('', 'PRINT');
-      mWindow.document.write('<html><head><title>资产标签打印</title></head>');
-      mWindow.document.write('<style media="print">');
-      mWindow.document.write('body {width:40mm;height:30mm; font-size:6px;}');
-      mWindow.document.write('@page {size: auto;margin: 0mm;}');
-      mWindow.document.write('</style><body>');
-      mWindow.document.write(this.$refs.printDiv.innerHTML);
-      mWindow.document.write('</body></html>');
-      mWindow.document.close(); // necessary for IE >= 10
-      mWindow.focus(); // necessary for IE >= 10*/
+      this.printList=this.selectedRows;
 
-      mWindow.print();
-      mWindow.close();
+      this.$nextTick(() => {
+        for (let j = 0; j < this.printList.length; j++) {
+          document.getElementById("XQ" + j).innerHTML = ""; //置空
+          let contentStr = this.selectedRows[j].code; //二维码内容
+          let qrcode = new QRCode(document.getElementById("XQ" + j), {
+            text: contentStr,
+            width: 60,
+            height: 60,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }
+        let _this=this;
+        setTimeout(function() {
+            let mWindow = window.open('', 'PRINT');
+            mWindow.document.write('<html><head><title></title></head>');
+            mWindow.document.write('<style media="print">');
+            //mWindow.document.write('body {width:40mm;height:30mm; font-size:1px;}');
+            //mWindow.document.write('@media print {width:40mm;height:30mm;font-size:1pt;}');
+            mWindow.document.write('@page {size: 40mm 30mm;margin: 0mm;}');
+            mWindow.document.write('</style><body>');
+            mWindow.document.write(_this.$refs.printDiv.innerHTML);
+            mWindow.document.write('</body></html>');
+            mWindow.document.close(); // necessary for IE >= 10
+            mWindow.focus(); // necessary for IE >= 10*/
+
+            mWindow.print();
+            mWindow.close();
+        },1000)
+       
+      })
+      
     },
     print2() {
       let _self = this;
