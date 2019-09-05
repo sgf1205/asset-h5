@@ -286,14 +286,14 @@
     
     </el-dialog>
 
-    <div style="display:hidden" ref="printDiv">
-      <table v-for="(obj,idx) in printList">
+    <div style="visibility:hidden" ref="printDiv">
+      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='page-break-after:always;margin:2mm'>
         <Tr>
           <td><div :id='"XQ"+idx'></div></td>
           <td>
-            <label style='display:block;font-size:8pt'>资产名称：{{obj.name}}</label>
-            <label style='display:block;font-size:8pt'>资产类型：{{obj.classesName}}</label>
-            <label style='display:block;font-size:8pt'>资产部门：{{obj.organName}}</label>
+            <label style='display:block;font-size:8pt'>名称：{{obj.name}}</label>
+            <label style='display:block;font-size:8pt'>类型：{{obj.classesName}}</label>
+            <label style='display:block;font-size:8pt'>部门：{{obj.organName}}</label>
           </td>
         </Tr>
       </table>
@@ -304,7 +304,6 @@
 import QRCode from "qrcodejs2";
 import daBreadcrumb from "@/components/da-breadcrumb";
 import daAssetsStatus from "@/components/da-assets-status";
-import printTag from "@/components/printTag";
 import classesSelect from "../Classes/classesSelect";
 import organSelect from "../sys/OrganSelect";
 import { isDecimal, isInteger } from "@/libs/validator.js";
@@ -470,8 +469,8 @@ export default {
           let contentStr = this.selectedRows[j].code; //二维码内容
           let qrcode = new QRCode(document.getElementById("XQ" + j), {
             text: contentStr,
-            width: 60,
-            height: 60,
+            width: 75,
+            height: 75,
             colorDark: "#000000",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
@@ -482,91 +481,23 @@ export default {
             let mWindow = window.open('', 'PRINT');
             mWindow.document.write('<html><head><title></title></head>');
             mWindow.document.write('<style media="print">');
-            //mWindow.document.write('body {width:40mm;height:30mm; font-size:1px;}');
             //mWindow.document.write('@media print {width:40mm;height:30mm;font-size:1pt;}');
+            //mWindow.document.write('@page :left{margin-left:2mm}');
+           // mWindow.document.write('@page :right{margin-left:2mm}');
+            mWindow.document.write('nav,aside{display:none}');
             mWindow.document.write('@page {size: 40mm 30mm;margin: 0mm;}');
             mWindow.document.write('</style><body>');
             mWindow.document.write(_this.$refs.printDiv.innerHTML);
             mWindow.document.write('</body></html>');
             mWindow.document.close(); // necessary for IE >= 10
             mWindow.focus(); // necessary for IE >= 10*/
-
             mWindow.print();
             mWindow.close();
+            _this.$refs.printDiv.innerHTML='';
         },1000)
        
       })
       
-    },
-    print2() {
-      let _self = this;
-      let pLength = _self.selectedRows.length;
-      if (pLength == 0) {
-        this.$message({
-          type: "error",
-          message: "请先选择需要打印的资产信息!"
-        });
-        return;
-      }
-
-      let head_str = "<html><head><title>资产标签打印</title></head>"; //先生成头部
-      head_str +=
-        "<style media='print'>" +
-        "body{                " +
-        "  width:40mm;       " +
-        "  height:30mm;      " +
-        "  font-size:9pt;    " +
-        "}                    " +
-        "@media print{ width:40mm;height:30mm;font-size:9pt; }       "  +
-        "@page {               " +
-        "   size: auto; "+
-        "   margin: 0mm;    " +
-        "}                    ";
-
-      head_str += "</style><body>";
-      let foot_str = "</body></html>"; //生成尾部
-
-      let printContent = "";
-      for (let i = 0; i < pLength; i++) {
-        printContent +=
-          "<!--startPrint--><table style='page-break-after:always;'><tr >";
-        printContent +=
-          "<td>" + "<div id='XQ" + i + "'></div>";
-        printContent += "</td>";
-        printContent += "<td style='padding-left:2mm'>";
-        printContent +=
-          "<label style='display:block'>资产名称：" +
-          _self.selectedRows[i].name +
-          "</label>";
-        printContent +=
-          "<label style='display:block;'>资产类型：" +
-          _self.selectedRows[i].classes.name +
-          "</label>";
-        printContent +=
-          "<label style='display:block;'>登记部门：" +
-          _self.selectedRows[i].organName +
-          "</label>";
-        printContent += "</td></tr>";
-        printContent += "</table>";
-      }
-      let oldStr = document.body.innerHTML;
-      //构建新网页(关键步骤,必须先构建新网页,在生成二维码,否则不能显示二维码)
-      document.body.innerHTML = head_str + printContent + foot_str;
-      for (let j = 0; j < _self.selectedRows.length; j++) {
-        document.getElementById("XQ" + j).innerHTML = ""; //置空
-        let contentStr = _self.selectedRows[j].code; //二维码内容
-        let qrcode = new QRCode(document.getElementById("XQ" + j), {
-          text: contentStr,
-          width: 60,
-          height: 60,
-          colorDark: "#000000",
-          colorLight: "#ffffff"
-        });
-      }
-      window.print(); //打印刚才新建的网页
-      document.body.innerHTML = oldStr;
-      window.location.reload();
-      return false;
     },
     load() {
       let _self = this;
