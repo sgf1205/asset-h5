@@ -286,14 +286,14 @@
     
     </el-dialog>
 
-    <div style="display:hidden;font-size:3pt" ref="printDiv">
+    <div style="display:hidden" ref="printDiv">
       <table v-for="(obj,idx) in printList">
         <Tr>
           <td><div :id='"XQ"+idx'></div></td>
           <td>
-            <label style='display:block;font-size:3pt'>资产名称：{{obj.name}}</label>
-            <label style='display:block;font-size:3pt'>资产类型：{{obj.classesName}}</label>
-            <label style='display:block;font-size:3pt'>资产部门：{{obj.organName}}</label>
+            <label style='display:block;font-size:8pt'>资产名称：{{obj.name}}</label>
+            <label style='display:block;font-size:8pt'>资产类型：{{obj.classesName}}</label>
+            <label style='display:block;font-size:8pt'>资产部门：{{obj.organName}}</label>
           </td>
         </Tr>
       </table>
