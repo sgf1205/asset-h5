@@ -285,12 +285,26 @@
         </div>
     
     </el-dialog>
+
+    <div style="display:hidden;font-size:9pt" ref="printDiv">
+      <table v-for="(obj,idx) in selectedRows">
+        <Tr>
+          <td><div :id='"XQ"+idx'></div></td>
+          <td>
+            <label style='display:block'>资产名称：{{obj.name}}</label>
+            <label style='display:block'>资产类型：{{obj.classesName}}</label>
+            <label style='display:block'>资产部门：{{obj.organName}}</label>
+          </td>
+        </Tr>
+      </table>
+    </div>
   </div>
 </template>
 <script>
 import QRCode from "qrcodejs2";
 import daBreadcrumb from "@/components/da-breadcrumb";
 import daAssetsStatus from "@/components/da-assets-status";
+import printTag from "@/components/printTag";
 import classesSelect from "../Classes/classesSelect";
 import organSelect from "../sys/OrganSelect";
 import { isDecimal, isInteger } from "@/libs/validator.js";
@@ -446,7 +460,34 @@ export default {
         this.assetUploadVisible = true;
       }
     },
-    print() {
+    print(){
+      for (let j = 0; j < this.selectedRows.length; j++) {
+        document.getElementById("XQ" + j).innerHTML = ""; //置空
+        let contentStr = this.selectedRows[j].code; //二维码内容
+        let qrcode = new QRCode(document.getElementById("XQ" + j), {
+          text: contentStr,
+          width: 60,
+          height: 60,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+      let mWindow = window.open('', 'PRINT');
+      mWindow.document.write('<html><head><title>资产标签打印</title></head>');
+      mWindow.document.write('<style media="print">');
+      mWindow.document.write('body {width:40mm;height:30mm; font-size:6px;}');
+      mWindow.document.write('@page {size: auto;margin: 0mm;}');
+      mWindow.document.write('</style><body>');
+      mWindow.document.write(this.$refs.printDiv.innerHTML);
+      mWindow.document.write('</body></html>');
+      mWindow.document.close(); // necessary for IE >= 10
+      mWindow.focus(); // necessary for IE >= 10*/
+
+      mWindow.print();
+      mWindow.close();
+    },
+    print2() {
       let _self = this;
       let pLength = _self.selectedRows.length;
       if (pLength == 0) {
@@ -467,8 +508,8 @@ export default {
         "}                    " +
         "@media print{ width:40mm;height:30mm;font-size:9pt; }       "  +
         "@page {               " +
-        "   size: 40mm 30mm; "+
-        "   margin: 1mm;    " +
+        "   size: auto; "+
+        "   margin: 0mm;    " +
         "}                    ";
 
       head_str += "</style><body>";
