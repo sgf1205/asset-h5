@@ -85,7 +85,7 @@ export default {
 </script>
 <style lang="less">
 .login-layout {
-  background: url(../../assets/images/login_bg.jpg) no-repeat center center/cover;
+  background: url(../../assets/images/sy_body_bg.png) no-repeat center center/cover;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -100,7 +100,7 @@ export default {
             margin-top:20px;
         };
         h1{
-            color: #fff;
+            color: #000;
             opacity: 0.8;
             text-align: center
         }
@@ -110,7 +110,7 @@ export default {
         margin-left:26px;
         h3{
             line-height: 40px;
-            color: #fff;
+            color: #000;
             font-size: 16px;
         }
     }
