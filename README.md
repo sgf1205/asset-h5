@@ -1,4 +1,4 @@
-# assets-dingai
+# assets
 
 ## Project setup
 ```

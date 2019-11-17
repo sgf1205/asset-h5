@@ -153,6 +153,7 @@
               <da-select-assets
                 v-if="assetsCompentReset"
                 @handle="handleAddGetAssets"
+                :neStatus="'4,5'"
                 ref="assetsSelect"
               ></da-select-assets>
               <span slot="footer" class="dialog-footer">

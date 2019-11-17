@@ -77,9 +77,7 @@
                 </el-card>
             </el-col>
         </el-row>
-        <el-row class="num-panel copyright">
-            Copyright © 2018 丁艾资产管理系统 版权所有.
-        </el-row>
+       
         
     </div>
 </template>

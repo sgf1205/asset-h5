@@ -86,7 +86,7 @@
           <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
         </el-table-column>
         <el-table-column align="center" prop="organName" label="所属部门" width="120"></el-table-column>
-        <el-table-column align="center" prop="usingOrganName" label="存放地点" width="200"></el-table-column>
+        <el-table-column align="center" prop="usingOrganName" label="当前所在部门" width="200"></el-table-column>
         <el-table-column align="center" prop="usingTime" label="领用时间" width="120">
           <template slot-scope="scope">{{scope.row.usingTime|date}}</template>
         </el-table-column>

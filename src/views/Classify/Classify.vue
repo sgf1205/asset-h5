@@ -33,7 +33,7 @@ export default {
         }
     },
     mounted(){
-        this.$api.get("/asset/statistics?type=classes").then(
+        this.$api.get("/asset/statistics?type=organ").then(
             res=>{
                 if(res.code==0){
                     this.statistics=res.data;

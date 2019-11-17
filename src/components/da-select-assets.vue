@@ -32,6 +32,7 @@
 </template>
 <script>
 export default {
+  props:["neStatus","status"],
   data() {
     return {
       selectAssetsData: [],
@@ -60,13 +61,17 @@ export default {
     },
     load() {
       let _self = this;
+      let searchParam={};
+      searchParam.name=this.searchAssetName;
+      searchParam.pageSize=this.pageSize;
+      searchParam.currentPage=this.currentPage;
+      if(this.neStatus){
+        searchParam.neStatuss=this.neStatus
+      }else{
+        searchParam.status=0
+      }
       this.$api
-        .get("/asset/list", {
-          name: this.searchAssetName,
-          status: 0,
-          pageSize: this.pageSize,
-          currentPage: this.currentPage
-        })
+        .get("/asset/list",searchParam)
         .then(res => {
           if (res.code == 0 && res.data) {
             _self.assetDatas = res.data.result;

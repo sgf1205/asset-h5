@@ -77,6 +77,18 @@
               <el-input type="text" v-model="addApplyForm.applyUser" placeholder="领用人"></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span="8">
+              <el-form-item   label="领用时间" prop="applyTime">
+                  <el-date-picker
+                    v-model="addApplyForm.applyTime"
+                    type="date"
+                    style="width:100%;"
+                    placeholder="领用时间"
+                    format="yyyy-MM-dd"
+                  ></el-date-picker>
+              </el-form-item>
+           
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="16">
@@ -169,6 +181,7 @@ export default {
 
       this.addApplyForm.organId=data.organ.id;
       this.addApplyForm.applyUser=data.applyUser;
+      this.addApplyForm.applyTime=data.applyTime
       this.addApplyForm.remarks=data.remarks;
       this.selectApplyAssetsData=data.items.map(item=>item.asset)
       this.newModel = false;
