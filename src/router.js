@@ -82,6 +82,13 @@ const routeMaps = [
             meta:{ title:"资产清单"}
           },
           {
+            path:"check",
+            name:"Check",
+            hidden:false,
+            component:()=>import('@/views/Bill/Check'),
+            meta:{ title:"资产盘点"}
+          },
+          {
             path:"classify",
             name:"Classify",
             hidden:false,

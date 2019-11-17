@@ -291,9 +291,9 @@
         <Tr>
           <td><div :id='"XQ"+idx'></div></td>
           <td>
-            <label style='display:block;font-size:8pt'>名称：{{obj.name}}</label>
-            <label style='display:block;font-size:8pt'>类型：{{obj.classesName}}</label>
-            <label style='display:block;font-size:8pt'>部门：{{obj.organName}}</label>
+            <label style='display:block;font-size:8pt'>{{obj.name}}</label>
+            <label style='display:block;font-size:8pt'>{{obj.classesName}}</label>
+            <label style='display:block;font-size:8pt'>{{obj.organName}}</label>
           </td>
         </Tr>
       </table>
