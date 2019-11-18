@@ -20,33 +20,66 @@
       </el-col>
       <el-col :span="10">
           <!-- 数据表格 -->
+          
           <el-table :data="scanAssets" border style="width: 100%;margin:10px 0;">
             <el-table-column align="center" prop="name" :label="'已扫描'+scanAssets.length+'件'" ></el-table-column>
-            <el-table-column fixed="right" label="操作" width="100">
-              <template slot-scope="scope">
-                <el-button @click="del(scope.row)" type="text" :size="$store.state.size">删除</el-button>
-              </template>
-            </el-table-column>
           </el-table>
+          <el-row style="margin:10px 0;">
+            <el-col :span="24">
+              <el-button
+                type="primary"
+                :size="$store.state.size"
+                @click="openSaveDialog"
+                :disabled="alreadySave"
+              >保存盘点记录</el-button>
+            </el-col>
+          </el-row>
       </el-col>
     </el-row>
+
+    <!-- 保存盘点记录 -->
+    <el-dialog title="保存盘点记录" :visible.sync="addDialogVisible" width="40%">
+      <el-form ref="form" :model="checkInfo" label-width="80px" :rules="rules">
+        <el-form-item label="盘点人所在部门" prop="organId">
+          <organ-select :organId="checkInfo.organId" @changeId="changeOrganId"></organ-select>
+        </el-form-item>
+        <el-form-item label="盘点人" prop="user">
+          <el-input v-model="checkInfo.user"></el-input>
+        </el-form-item>
+        <el-row>
+          <el-button :size="$store.state.size" @click="saveCheckInfo" :disabled="alreadySave">保存</el-button>
+          <el-button type="danger" :size="$store.state.size" @click="addDialogVisible=false">取消</el-button>
+        </el-row>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script>
 
 import tree from '@/libs//tree'
+import organSelect from "../sys/OrganSelect"
+import daBreadcrumb from "@/components/da-breadcrumb";
+
 export default {
+  components: {
+    "organ-select": organSelect,
+    daBreadcrumb
+  },
   data: function() {
     return {
       rules: {
-        name: [{ required: true, message: "请输入", trigger: "blur" }]
+        user: [{ required: true, message: "请输入盘点人姓名", trigger: "blur" }],
+        organId: [{ required: true, message: "请选择盘点人部门", trigger: "blur" }]
       },
       organs: [],
       clickNodeOrgans:[],
       clickNode:{id:"0",name:"未选择"},
       registerData: [],
       scanAssets:[],
-      totalSize:0
+      totalSize:0,
+      alreadySave:false,
+      addDialogVisible:false,
+      checkInfo:{}
     };
   },
   methods: {
@@ -116,13 +149,48 @@ export default {
                 })
             });
     },
-    edit(row){
-      this.dialogTitle='修改部门';
-      this.addOrganForm=row;
-      this.addDialogVisible=true;
-      this.saveBtnDisabed=false;
+    openSaveDialog(e){
+      e.srcElement.blur()
+      if(this.scanAssets.length ==0 ){
+        this.$message({
+              type: "error",
+              message: "没有任何盘点信息!"
+            })
+        return
+      }
+      if(this.scanAssets.length < this.registerData.length){
+        this.$confirm('已盘点数量少于应盘点数量，确认保存？', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.addDialogVisible=true
+            });
+      }else{
+        this.addDialogVisible=true
+      }
+    },
+    changeOrganId(organId) {
+      this.checkInfo.organId = organId;
+    },
+    saveCheckInfo(){
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          this.checkInfo.needCheckAssets=this.registerData.map(asset => asset.id)
+          this.checkInfo.alreadyCheckAssets=this.scanAssets.map(asset => asset.id)
+          this.alreadySave=true;
+          this.addDialogVisible=false;
+          this.$api.post("/asset/saveCheckInfo",this.checkInfo).then(res=>{
+            if(res.code==0){
+                this.$message({
+                  type: "success",
+                  message: "保存盘点信息成功!"
+                })
+            }
+          })
+        }
+      })
     }
-
   },
   created() {
       this.load();
@@ -130,7 +198,8 @@ export default {
       let b=''
       document.onkeydown = function() {
         //console.log(b +" "+event.keyCode)
-        
+        if(_self.alreadySave)
+          return
         if (event.keyCode != 13) {
           var bizCode = String.fromCharCode(event.keyCode);
           if (event.keyCode >= 48 && event.keyCode <= 122) {
@@ -146,7 +215,7 @@ export default {
             return 
           }
           _self.$api
-            .get("/asset/getByCode", {code:b,usingOrganId:_self.clickNode.id})
+            .get("/asset/getByCodeAndUsingOrganId", {code:b,usingOrganId:_self.clickNode.id})
             .then(res => {
               if(res.code==0 && res.data){
                 _self.scanAssets.push(res.data);

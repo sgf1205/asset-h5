@@ -378,7 +378,7 @@ export default {
         let qrcode = new QRCode("qrcode", {
           width: 150,
           height: 150,
-          text: row.code, // 二维码地址
+          text: row.id, // 二维码地址
           colorDark: "#000",
           colorLight: "#fff"
         });
@@ -466,7 +466,7 @@ export default {
       this.$nextTick(() => {
         for (let j = 0; j < this.printList.length; j++) {
           document.getElementById("XQ" + j).innerHTML = ""; //置空
-          let contentStr = this.selectedRows[j].code; //二维码内容
+          let contentStr = this.selectedRows[j].id; //二维码内容
           let qrcode = new QRCode(document.getElementById("XQ" + j), {
             text: contentStr,
             width: 75,
@@ -480,12 +480,15 @@ export default {
         setTimeout(function() {
             let mWindow = window.open('', 'PRINT');
             mWindow.document.write('<html><head><title></title></head>');
-            mWindow.document.write('<style media="print">');
+            mWindow.document.write('<style type = "text/css">');
             //mWindow.document.write('@media print {width:40mm;height:30mm;font-size:1pt;}');
             //mWindow.document.write('@page :left{margin-left:2mm}');
            // mWindow.document.write('@page :right{margin-left:2mm}');
-            mWindow.document.write('nav,aside{display:none}');
-            mWindow.document.write('@page {size: 40mm 30mm;margin: 0mm;}');
+            //mWindow.document.write('nav,aside{display:none}');
+            mWindow.document.write('@media print {');
+            mWindow.document.write('nav,aside{display:none}')
+            mWindow.document.write('@page {size: 40mm 30mm;margin: 0mm;}')
+            mWindow.document.write('}')
             mWindow.document.write('</style><body>');
             mWindow.document.write(_this.$refs.printDiv.innerHTML);
             mWindow.document.write('</body></html>');
@@ -493,7 +496,9 @@ export default {
             mWindow.focus(); // necessary for IE >= 10*/
             mWindow.print();
             mWindow.close();
-            _this.$refs.printDiv.innerHTML='';
+            //_this.$refs.printDiv.innerHTML='';
+            _this.printList=[]
+            //_this.load()
         },1000)
        
       })
