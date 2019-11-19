@@ -82,10 +82,10 @@ const routeMaps = [
             meta:{ title:"资产清单"}
           },
           {
-            path:"check",
-            name:"Check",
+            path:"checkList",
+            name:"CheckList",
             hidden:false,
-            component:()=>import('@/views/Bill/Check'),
+            component:()=>import('@/views/Bill/CheckList'),
             meta:{ title:"资产盘点"}
           },
           {
@@ -155,6 +155,13 @@ const routeMaps = [
         component:()=>import('@/views/Profile/Profile'),
         meta:{ title:"修改资料",icon:'el-icon-edit-outline'}
       },
+      {
+        path:"check",
+        name:"Check",
+        hidden:true,
+        component:()=>import('@/views/Bill/Check'),
+        meta:{ title:"资产盘点"}
+      }
       
     ]
   }

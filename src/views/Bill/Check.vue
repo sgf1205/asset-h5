@@ -1,5 +1,6 @@
 <template>
   <div>
+    <da-breadcrumb></da-breadcrumb>
     <el-row :gutter="10">
       <el-col :span="5" height="90%">
         <el-tree ref="organTree" 
@@ -39,7 +40,7 @@
 
     <!-- 保存盘点记录 -->
     <el-dialog title="保存盘点记录" :visible.sync="addDialogVisible" width="40%">
-      <el-form ref="form" :model="checkInfo" label-width="80px" :rules="rules">
+      <el-form ref="form" :model="checkInfo" label-width="180px" :rules="rules">
         <el-form-item label="盘点人所在部门" prop="organId">
           <organ-select :organId="checkInfo.organId" @changeId="changeOrganId"></organ-select>
         </el-form-item>
@@ -180,7 +181,7 @@ export default {
           this.checkInfo.alreadyCheckAssets=this.scanAssets.map(asset => asset.id)
           this.alreadySave=true;
           this.addDialogVisible=false;
-          this.$api.post("/asset/saveCheckInfo",this.checkInfo).then(res=>{
+          this.$api.post("/check/save",this.checkInfo).then(res=>{
             if(res.code==0){
                 this.$message({
                   type: "success",
