@@ -318,16 +318,16 @@ export default {
   data() {
     return {
       rules: {
-        name: [{ required: true, message: "请输入" }],
-        classesId: [{ required: true, message: "请选择" }],
-        money: [{ required: true }, { validator: isDecimal }],
-        purchaseTime: [{ required: true, message: "请输入" }],
-        organId: [{ required: true, message: "请选择" }],
-        life: [{ required: true, message: "请输入" }, { validator: isInteger }],
-        source: [{ required: true, message: "请选择" }],
-        specification: [{ required: true, message: "请输入" }],
-        accountingDate: [{ required: true, message: "请输入" }],
-        accountingNo: [{ required: true, message: "请输入" }]
+        name: [{ required: true, message: "请输入" , trigger: "blur" }],
+        classesId: [{ required: true, message: "请选择" , trigger: "blur" }],
+        money: [{ required: true , trigger: "blur" }, { validator: isDecimal , trigger: "blur" }],
+        purchaseTime: [{ required: true, message: "请输入" , trigger: "blur" }],
+        organId: [{ required: true, message: "请选择" , trigger: "blur" }],
+        life: [{ required: true, message: "请输入"  , trigger: "blur"}, { validator: isInteger , trigger: "blur" }],
+        source: [{ required: true, message: "请选择" , trigger: "blur" }],
+        specification: [{ required: true, message: "请输入" , trigger: "blur" }],
+        accountingDate: [{ required: true, message: "请输入" , trigger: "blur"}],
+        accountingNo: [{ required: true, message: "请输入" , trigger: "blur" }]
       },
       activeName: "register",
       searchAssetName: "",
