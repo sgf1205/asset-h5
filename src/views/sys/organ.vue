@@ -47,7 +47,7 @@
         <el-form-item label="部门名称" prop="name">
           <el-input v-model="addOrganForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="部门编码">
+        <el-form-item label="部门编码" prop="code">
           <el-input v-model="addOrganForm.code"></el-input>
         </el-form-item>
         <el-row>
@@ -59,13 +59,14 @@
   </div>
 </template>
 <script>
-
+import { isDecimal, isInteger } from "@/libs/validator.js";
 import tree from '@/libs//tree'
 export default {
   data: function() {
     return {
       rules: {
-        name: [{ required: true, message: "请输入", trigger: "blur" }]
+        name: [{ required: true, message: "请输入", trigger: "blur" }],
+        code: [{ required: true, message: "请输入" }, { validator: isInteger }]
       },
       searchDate: "",
       addDialogVisible: false,

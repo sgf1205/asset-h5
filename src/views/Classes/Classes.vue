@@ -55,6 +55,8 @@
 </template>
 <script>
 import daBreadcrumb from "@/components/da-breadcrumb";
+import { isDecimal, isInteger } from "@/libs/validator.js";
+
 export default {
   components: {
     daBreadcrumb
@@ -63,7 +65,7 @@ export default {
     return {
       rules: {
         name: [{ required: true, message: "请输入", trigger: "blur" }],
-        code: [{ required: true, message: "请输入", trigger: "blur" }]
+        code: [{ required: true, message: "请输入", trigger: "blur" }, { validator: isInteger }]
       },
       addDialogVisible: false,
       saveBtnDisabed: false,

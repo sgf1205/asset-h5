@@ -62,6 +62,7 @@
               </template>
             </el-table-column>
             <el-table-column align="center" prop="name" label="资产名称" width="200"></el-table-column>
+            <el-table-column align="center" prop="code" label="资产编码" width="200"></el-table-column>
             <el-table-column prop="classesName" label="资产类别" width="150"></el-table-column>
             <el-table-column prop="specification" label="品牌型号" width="100"></el-table-column>
             <el-table-column prop="life" label="预计使用年限" width="120"></el-table-column>
@@ -466,7 +467,7 @@ export default {
       this.$nextTick(() => {
         for (let j = 0; j < this.printList.length; j++) {
           document.getElementById("XQ" + j).innerHTML = ""; //置空
-          let contentStr = this.selectedRows[j].id; //二维码内容
+          let contentStr = this.selectedRows[j].code; //二维码内容
           let qrcode = new QRCode(document.getElementById("XQ" + j), {
             text: contentStr,
             width: 75,

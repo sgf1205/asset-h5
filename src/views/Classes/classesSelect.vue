@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-select :value="value" @change="selectChange">
+    <el-select :value="value" @change="selectChange" :clearable="clearable">
       <el-option v-for="(opt ,index) in datas" :key="index" :label="opt.name" :value="opt.id"></el-option>
     </el-select>
   </div>
@@ -8,7 +8,7 @@
 <script>
 export default {
   name: "classes-Select",
-  props: ["value"],
+  props: ["value","clearable"],
   data: function() {
     return {
       datas: [],

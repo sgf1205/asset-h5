@@ -10,17 +10,17 @@
         size="mini"
       >
         <el-row>
-          <el-col :span="8">
+          <el-col :span="6">
             <el-form-item label="登记部门">
               <organ-select :v-model="searchForm.registerOrganId" @changeId="changeRegisterId"></organ-select>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <el-form-item label="使用部门">
               <organ-select :v-model="searchForm.usingOrganId" @changeId="changeUsingOrganId"></organ-select>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <el-form-item label="资产名称">
               <el-input
                 placeholder="请输入关键字"
@@ -29,21 +29,45 @@
               />
             </el-form-item>
           </el-col>
+          <el-col :span="6">
+            <el-form-item label="资产来源">
+              <el-input
+                placeholder="请输入关键字"
+                v-model="searchForm.source"
+                :size="$store.state.size"
+              />
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">
+          <el-col :span="6">
             <el-form-item label="资产状态">
-              <el-select v-model="searchForm.status">
+              <el-select v-model="searchForm.status" clearable="true">
                    <el-option
                     v-for="item in status"
                     :key="item.value"
                     :label="item.label"
-                    :value="item.value">
+                    :value="item.value"
+                    >
                     </el-option>
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="16">
+          <el-col :span="6">
+            <el-form-item label="资产类别">
+              <classes-select v-model="searchForm.classesId" clearable="true"></classes-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="资产编码">
+                <el-input
+                  placeholder="请输入资产编码"
+                  v-model="searchForm.code"
+                  :size="$store.state.size"
+                />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
             <el-form-item label="资产价格" >
               <el-input-number v-model="searchForm.lowMoney" />
               至
@@ -80,7 +104,8 @@
             <da-assets-status :status="scope.row.status"></da-assets-status>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="name" label="资产名称" width="260"></el-table-column>
+        <el-table-column align="center" prop="name" label="资产名称" width="240"></el-table-column>
+        <el-table-column align="center" prop="code" label="资产编码" width="240"></el-table-column>
         <el-table-column align="center" prop="classesName" label="资产类别" width="150"></el-table-column>
         <el-table-column align="center" prop="source" label="资产来源" width="120">
           <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
