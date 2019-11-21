@@ -16,14 +16,22 @@
       <el-col :span="9">
           <!-- 数据表格 -->
           <el-table :data="registerData" border style="width: 100%;margin:10px 0;">
-            <el-table-column align="center" prop="name" :label="'部门：'+clickNode.name+'下资产,共'+totalSize+'件'" ></el-table-column>
+            <el-table-column align="center" :label="'部门：'+clickNode.name+'下资产,共'+totalSize+'件'" >
+              <template slot-scope="scope">
+                 <span :style="!codeStyle[scope.row.id]?'color:red':''">{{scope.row.name}}【{{scope.row.code}}】</span>
+              </template>
+            </el-table-column>
           </el-table>
       </el-col>
       <el-col :span="10">
           <!-- 数据表格 -->
           
           <el-table :data="scanAssets" border style="width: 100%;margin:10px 0;">
-            <el-table-column align="center" prop="name" :label="'已扫描'+scanAssets.length+'件'" ></el-table-column>
+            <el-table-column align="center" :label="'已扫描'+scanAssets.length+'件'" >
+                <template slot-scope="scope">
+                  {{scope.row.name}}[{{scope.row.code}}]
+                </template>
+            </el-table-column>
           </el-table>
           <el-row style="margin:10px 0;">
             <el-col :span="24">
@@ -78,6 +86,7 @@ export default {
       registerData: [],
       scanAssets:[],
       totalSize:0,
+      codeStyle:[],
       alreadySave:false,
       addDialogVisible:false,
       checkInfo:{}
@@ -128,6 +137,8 @@ export default {
           _self.registerData = res.data.result;
             //_self.currentPage=res.data.currentPage;
           _self.totalSize = res.data.totalSize;
+          
+          _self.registerData.forEach(rd=>{_self.codeStyle[rd.id]=false})
         }
       });
     },
@@ -219,6 +230,8 @@ export default {
             .get("/asset/getByCodeAndUsingOrganId", {code:b,usingOrganId:_self.clickNode.id})
             .then(res => {
               if(res.code==0 && res.data){
+                //_self.codeStyle[res.data.id]=true
+                _self.$set(_self.codeStyle,res.data.id,true);
                 _self.scanAssets.push(res.data);
               }else{
                 _self.$message({

@@ -146,7 +146,7 @@
                     </el-form-item>
                   </el-col>
                   <el-col :span="8">
-                    <el-form-item label="所属部门" prop="organId">
+                    <el-form-item label="所属单位" prop="organId">
                       <organ-select :organId="addRegisterData.organId" @changeId="changeOrganId"></organ-select>
                     </el-form-item>
                   </el-col>
@@ -157,16 +157,6 @@
               <el-col :span="8">
                 <el-form-item label="品牌型号" prop="specification">
                   <el-input v-model="addRegisterData.specification" placeholder="品牌型号"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="SN号">
-                  <el-input v-model="addRegisterData.sn" placeholder="SN号"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="计量单位">
-                  <el-input v-model="addRegisterData.metering" placeholder="计量单位"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">

@@ -91,7 +91,17 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="16">
+          <el-col :span="6">
+            <el-form-item label="存放地点" prop="storagePlace">
+              <el-input type="text" v-model="addApplyForm.storagePlace" placeholder="存放地点"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="使用人" prop="useUser">
+              <el-input type="text" v-model="addApplyForm.useUser" placeholder="使用人"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="说明">
               <el-input type="textarea" v-model="addApplyForm.remarks" placeholder="领用备注"></el-input>
             </el-form-item>

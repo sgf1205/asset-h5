@@ -1,9 +1,21 @@
 <template>
   <div>
+    <el-row>
+      <el-col :span="6">
+                <el-input
+                  placeholder="请输入资产编码"
+                  v-model="code"
+                  class="input-with-select"
+                  :size="$store.state.size"
+                >
+                  <el-button slot="append" icon="el-icon-search" @click="load"></el-button>
+                </el-input>
+      </el-col>
+    </el-row>
     <el-table
       :data="assetDatas"
       border
-      style="width: 100%;"
+      style="width: 100%;margin-top:10px"
       height="300"
       @selection-change="handleSelectionChange"
     >
@@ -40,7 +52,7 @@ export default {
       searchAssetName: "",
       pageSize: 10,
       currentPage: 1,
-
+      code:'',
       totalSize: 0
     };
   },
@@ -62,6 +74,7 @@ export default {
     load() {
       let _self = this;
       let searchParam={};
+      searchParam.code=code;
       searchParam.name=this.searchAssetName;
       searchParam.pageSize=this.pageSize;
       searchParam.currentPage=this.currentPage;

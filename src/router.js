@@ -123,7 +123,7 @@ const routeMaps = [
             name:"organ",
             hidden:false,
             component:()=>import('@/views/sys/organ'),
-            meta:{ title:"部门管理"}
+            meta:{ title:"组织部门管理"}
           },
           {
             path:"user",
