@@ -107,6 +107,7 @@
                 <slot v-if="showModel">
                   <el-col :span="8" align="center" style="height:180px">
                     <div id="qrcode"></div>
+                    <span style="font-weight:bold">{{addRegisterData.code}}</span>
                   </el-col>
                   <el-col :span="16">
                     <el-col :span="16">

@@ -56,7 +56,7 @@
             <el-table-column prop="createTime" label="报废时间" align="center">
               <template slot-scope="scope">{{scope.row.createTime|date}}</template>
             </el-table-column>
-            <el-table-column prop="scrapUser" label="处理人" align="center"></el-table-column>
+            <el-table-column prop="scrapUser" label="资产报废申请人" align="center"></el-table-column>
             <el-table-column fixed="right" label="操作" align="center">
               <template slot-scope="scope">
                 <el-button
@@ -89,8 +89,8 @@
             >
               <el-row>
                 <el-col :span="8">
-                  <el-form-item label="报废人" prop="scrapUser">
-                    <el-input type="text" v-model="addScrapForm.scrapUser" placeholder="报废人"></el-input>
+                  <el-form-item label="资产报废申请人" prop="scrapUser">
+                    <el-input type="text" v-model="addScrapForm.scrapUser" placeholder="资产报废申请人"></el-input>
                   </el-form-item>
                 </el-col>
                     <el-col :span="8" v-if="!newModel">

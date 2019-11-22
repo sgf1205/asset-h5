@@ -10,6 +10,12 @@
           icon="el-icon-plus"
           @click="addApplyDialogVisible = true;newModel=true;addApplyForm={};selectApplyAssetsData=[]"
         >新增</el-button>
+        <el-button
+                type="primary"
+                :size="$store.state.size"
+                icon="el-icon-xiugai"
+                @click="revertReceive"
+              >退库</el-button>
       </el-col>
 
       <!-- 搜索栏 -->
@@ -32,8 +38,13 @@
       </el-col>
     </el-row>
     <!-- 数据表格 -->
-    <el-table :data="applys" border style="width: 100%;margin:10px 0;">
-
+    <el-table :data="applys" border style="width: 100%;margin:10px 0;" @selection-change="handleSelectionChange">
+      <el-table-column fixed type="selection" width="55" :selectable="chkstu"></el-table-column>
+      <el-table-column label="状态" align="center">
+        <template slot-scope="scope">
+          <da-assets-status :status="scope.row.status"></da-assets-status>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="领用时间" align="center">
         <template slot-scope="scope">{{scope.row.createTime|date}}</template>
       </el-table-column>
@@ -117,6 +128,7 @@
           style="width: 100%;margin:10px 0;"
           @selection-change="handleAssetSelectionChange"
         >
+          
           <el-table-column fixed type="selection" width="55"></el-table-column>
           <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
           <el-table-column align="center" prop="classes.name" label="资产类别"></el-table-column>
@@ -157,8 +169,9 @@
   </div>
 </template>
 <script>
-import daSelectAssets from "@/components/da-select-assets";
-import organSelect from "../../sys/OrganSelect";
+import daSelectAssets from "@/components/da-select-assets"
+import daAssetsStatus from "@/components/da-assets-status"
+import organSelect from "../../sys/OrganSelect"
 export default {
   data() {
 
@@ -168,6 +181,7 @@ export default {
         organId: [{ required: true, message: "请选择", trigger: "blur" }]
       },
       searchDate: [],
+      revertReceiveIds:[],
       addApplyDialogVisible: false,
       addApplyForm: {},
       selectAssetsDialogVisible: false,
@@ -183,8 +197,54 @@ export default {
     };
   },
   methods: {
+    chkstu(row, index) {
+      return row.status == 3 ? true : false;
+    },
     changeOrganId(organId) {
       this.addApplyForm.organId = organId;
+    },
+    handleSelectionChange(val) {
+      //获取选中的删除条目ID
+      this.revertReceiveIds = val.map(val => {
+        return val.id;
+      });
+    },
+    revertReceive() {
+      if (this.revertReceiveIds.length == 0) {
+        this.$message("请选中要退还的数据条目！");
+        return;
+      }
+      let _self = this;
+      this.$confirm("领用资产退库操作, 是否继续?", "资产退库确认提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          //要归还的ID数组 this.revertBorrowIds
+          _self.$api
+            .post("/asset/apply/revert", { ids: this.revertReceiveIds })
+            .then(res => {
+              if (res.code == 0) {
+                this.$message({
+                  type: "success",
+                  message: "退库成功!"
+                });
+                _self.load();
+              } else {
+                this.$message({
+                  type: "warning",
+                  message: "退库失败!" + res.msg
+                });
+              }
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消退库"
+          });
+        });
     },
     handleClickShowApply(data) {
       this.addApplyDialogVisible = true;
@@ -192,6 +252,8 @@ export default {
       this.addApplyForm.organId=data.organ.id;
       this.addApplyForm.applyUser=data.applyUser;
       this.addApplyForm.applyTime=data.applyTime
+      this.addApplyForm.storagePlace=data.storagePlace
+      this.addApplyForm.useUser=data.useUser
       this.addApplyForm.remarks=data.remarks;
       this.selectApplyAssetsData=data.items.map(item=>item.asset)
       this.newModel = false;
@@ -279,7 +341,8 @@ export default {
   },
   components: {
     daSelectAssets,
-    organSelect
+    organSelect,
+    daAssetsStatus
   }
 };
 </script>

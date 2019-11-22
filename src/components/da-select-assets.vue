@@ -4,7 +4,7 @@
       <el-col :span="6">
                 <el-input
                   placeholder="请输入资产编码"
-                  v-model="code"
+                  v-model="searchAssetCode"
                   class="input-with-select"
                   :size="$store.state.size"
                 >
@@ -21,6 +21,7 @@
     >
       <el-table-column fixed type="selection" width="55"></el-table-column>
       <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
+      <el-table-column align="center" prop="code" label="资产编码"></el-table-column>
       <el-table-column prop="classesName" label="资产类别"></el-table-column>
       <el-table-column prop="specification" label="品牌型号"></el-table-column>
       <el-table-column prop="source" label="资产来源"></el-table-column>
@@ -49,7 +50,7 @@ export default {
     return {
       selectAssetsData: [],
       assetDatas: [],
-      searchAssetName: "",
+      searchAssetCode: "",
       pageSize: 10,
       currentPage: 1,
       code:'',
@@ -74,8 +75,7 @@ export default {
     load() {
       let _self = this;
       let searchParam={};
-      searchParam.code=code;
-      searchParam.name=this.searchAssetName;
+      searchParam.code=this.searchAssetCode;
       searchParam.pageSize=this.pageSize;
       searchParam.currentPage=this.currentPage;
       if(this.neStatus){
