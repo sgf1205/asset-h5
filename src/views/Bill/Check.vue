@@ -213,9 +213,12 @@ export default {
         if(_self.alreadySave)
           return
         if (event.keyCode != 13) {
-          var bizCode = String.fromCharCode(event.keyCode);
-          if (event.keyCode >= 48 && event.keyCode <= 122) {
+          console.log(event.keyCode)
+          if (event.keyCode >= 48 && event.keyCode <= 122 ) {
+             var bizCode = String.fromCharCode(event.keyCode);
               b = b + bizCode;
+          }else if(event.keyCode==220){
+              b = b + "|"
           }
         } else {
           if(!_self.clickNode || _self.clickNode.id==0){
@@ -231,6 +234,9 @@ export default {
             .then(res => {
               if(res.code==0 && res.data){
                 //_self.codeStyle[res.data.id]=true
+                if(_self.codeStyle[res.data.id]){
+                  return
+                }
                 _self.$set(_self.codeStyle,res.data.id,true);
                 _self.scanAssets.push(res.data);
               }else{

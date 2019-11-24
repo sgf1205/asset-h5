@@ -279,13 +279,13 @@
     </el-dialog>
 
     <div style="visibility:hidden" ref="printDiv">
-      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='page-break-after:always;margin:2mm'>
+      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='page-break-after:always;'>
         <Tr>
           <td><div :id='"XQ"+idx'></div></td>
           <td>
-            <label style='display:block;font-size:8pt'>{{obj.name}}</label>
-            <label style='display:block;font-size:8pt'>{{obj.classesName}}</label>
-            <label style='display:block;font-size:8pt'>{{obj.organName}}</label>
+            <label style='display:block;font-size:8pt'>名称：{{obj.name}}</label>
+            <label style='display:block;font-size:8pt'>类别：{{obj.classesName}}</label>
+            <label style='display:block;font-size:8pt'>编码：{{obj.code}}</label>
           </td>
         </Tr>
       </table>
@@ -479,7 +479,7 @@ export default {
             //mWindow.document.write('nav,aside{display:none}');
             mWindow.document.write('@media print {');
             mWindow.document.write('nav,aside{display:none}')
-            mWindow.document.write('@page {size: 40mm 30mm;margin: 0mm;}')
+            mWindow.document.write('@page {size: 40mm 30mm;margin: 2mm;}')
             mWindow.document.write('}')
             mWindow.document.write('</style><body>');
             mWindow.document.write(_this.$refs.printDiv.innerHTML);
