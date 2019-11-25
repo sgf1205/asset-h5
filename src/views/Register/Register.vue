@@ -327,7 +327,7 @@ export default {
       assetUploadVisible: false,
       buttonDisabled:false,
       uploadUrl:this.$api.apiHost + '/api/asset/import',
-      uploadHeaders:{'token': sessionStorage.token},
+      uploadHeaders:{'token': sessionStorage['token']},
       importResult:false,
       showModel: false,
       addRegisterData: {},

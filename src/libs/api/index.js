@@ -29,7 +29,7 @@ Ajax.defaults.timeout = 80000;
 Ajax.interceptors.request.use(config => {
 
   config.headers = {
-    'token': sessionStorage.token,
+    'token': sessionStorage['token'],
     'Content-Type':'application/x-www-form-urlencoded'
   }
   return config

@@ -59,7 +59,7 @@ export default {
                 this.$api.get("/login",_self.ruleForm).then((res)=>{
                     if(res.code==0){
                         let user=res.data;
-                        sessionStorage.token=user.token;
+                        sessionStorage['token']=user.token;
                         //sessionStorage.roleId=user.roleId;
                         this.$message.success('登陆成功');
                         this.$router.push({name:"Main"});     
