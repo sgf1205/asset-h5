@@ -28,21 +28,21 @@
                 <da-assets-status :status="scope.row.status"></da-assets-status>
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="name" label="资产名称" width="200"></el-table-column>
-            <el-table-column prop="classesName" label="资产类别" width="150"></el-table-column>
-            <el-table-column prop="specification" label="品牌型号" width="100"></el-table-column>
-            <el-table-column prop="life" label="预计使用年限" width="120"></el-table-column>
-            <el-table-column align="center" prop="source" label="资产来源" width="80"></el-table-column>
-            <el-table-column align="center" prop="money" label="单价" width="80">
+            <el-table-column align="center" prop="name" label="资产名称" ></el-table-column>
+            <el-table-column prop="classesName" label="资产类别" ></el-table-column>
+            <el-table-column prop="specification" label="品牌型号" ></el-table-column>
+            <el-table-column prop="life" label="预计使用年限" ></el-table-column>
+            <el-table-column align="center" prop="source" label="资产来源"></el-table-column>
+            <el-table-column align="center" prop="money" label="单价">
               <template slot-scope="scope">{{scope.row.money|currency}}</template>
             </el-table-column>
-            <el-table-column prop="purchaseTime" label="购买时间" width="120">
+            <el-table-column prop="purchaseTime" label="购买时间">
               <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
             </el-table-column>
-            <el-table-column prop="accountingDate" label="财务记账日期" width="120">
+            <el-table-column prop="accountingDate" label="财务记账日期" >
               <template slot-scope="scope">{{scope.row.accountingDate|date}}</template>
             </el-table-column>
-            <el-table-column prop="accountingNo" label="财务记账凭证号" width="120"></el-table-column>
+            <el-table-column prop="accountingNo" label="财务记账凭证号" ></el-table-column>
             <el-table-column align="center" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editRegister(scope.row)" type="text" :size="$store.state.size">修改</el-button>
@@ -285,6 +285,7 @@ export default {
           delete _self.addRegisterData.registerUser;
           delete _self.addRegisterData.classes;
           delete _self.addRegisterData.registerTime;
+          delete _self.addRegisterData.usingTime;
           if(!_self.addRegisterData.expiryTime){
             delete _self.addRegisterData.expiryTime;
           }
