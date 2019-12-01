@@ -7,8 +7,8 @@
           <el-row>
             <el-col :span="6">
               <el-input
-                placeholder="请输入资产名称"
-                v-model="searchAssetName"
+                placeholder="请输入资产编码"
+                v-model="code"
                 class="input-with-select"
                 :size="$store.state.size"
               >
@@ -29,6 +29,7 @@
               </template>
             </el-table-column>
             <el-table-column align="center" prop="name" label="资产名称" ></el-table-column>
+            <el-table-column align="center" prop="code" label="资产编码" ></el-table-column>
             <el-table-column prop="classesName" label="资产类别" ></el-table-column>
             <el-table-column prop="specification" label="品牌型号" ></el-table-column>
             <el-table-column prop="life" label="预计使用年限" ></el-table-column>
@@ -262,7 +263,7 @@ export default {
         accountingNo: [{ required: true, message: "请输入" }]
       },
       activeName: "register",
-      searchAssetName: "",
+      code: "",
       addDialogTableVisible: false,
       editDialogTableVisible: false,
       showModel: false,
@@ -422,7 +423,7 @@ export default {
       this.$api
         .get("/asset/list", {
           status:0,
-          name: this.searchAssetName,
+          code: this.code,
           pageSize: this.pageSize,
           currentPage: this.currentPage
         })

@@ -204,6 +204,10 @@ export default {
       })
     }
   },
+  destroyed(){
+    document.onkeydown = undefined
+    console.log("remove sucess")
+  },
   created() {
       this.load();
       let _self=this
@@ -217,8 +221,8 @@ export default {
           if (event.keyCode >= 48 && event.keyCode <= 122 ) {
              var bizCode = String.fromCharCode(event.keyCode);
               b = b + bizCode;
-          }else if(event.keyCode==220){
-              b = b + "|"
+          }else if(event.keyCode==229 || event.keyCode==189 || event.keyCode ==173){
+              b = b + "-"
           }
         } else {
           if(!_self.clickNode || _self.clickNode.id==0){

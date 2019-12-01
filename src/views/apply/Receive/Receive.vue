@@ -133,6 +133,7 @@
           <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
           <el-table-column align="center" prop="classes.name" label="资产类别"></el-table-column>
           <el-table-column align="center" prop="specification" label="品牌型号"></el-table-column>
+          <el-table-column align="center" prop="code" label="资产编码"></el-table-column>
           <el-table-column align="center" prop="life" label="预计使用年限"></el-table-column>
           <el-table-column align="center" prop="money" label="单价">
             <template slot-scope="scope">{{scope.row.money|currency}}</template>

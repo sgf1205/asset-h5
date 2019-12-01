@@ -126,6 +126,8 @@ export default {
                     );
                     _this.assetsProfile.use=_this.assetsState.rows[1].value*100/(_this.assetsState.rows[0].value+_this.assetsState.rows[1].value);
                     _this.assetsProfile.unused=_this.assetsState.rows[0].value*100/(_this.assetsState.rows[0].value+_this.assetsState.rows[1].value);
+                    _this.assetsProfile.use=_this.assetsProfile.use.toFixed(1)
+                    _this.assetsProfile.unused=_this.assetsProfile.unused.toFixed(1)
                 }
             }
         )

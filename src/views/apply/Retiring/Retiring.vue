@@ -129,7 +129,7 @@
                 </el-row>
                 <el-table :data="selectCollarAssetsData" border style="width: 100%;margin:10px 0;" @selection-change="handleSelectionChange">
                     <el-table-column fixed type="selection" width="55"></el-table-column>
-                    <el-table-column prop="bar_code" label="资产条码" width="140"> </el-table-column>
+                    <el-table-column prop="code" label="资产编码" width="140"> </el-table-column>
                     <el-table-column prop="name" label="资产名称" width="150"> </el-table-column>
                     <el-table-column prop="type_id" label="资产类型" width="150"> </el-table-column>
                     <el-table-column prop="company" label="使用公司" width="100"> </el-table-column>
