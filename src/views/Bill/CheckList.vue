@@ -46,6 +46,15 @@
         <el-table-column align="center" prop="checkTime" label="盘点时间" >
           <template slot-scope="scope">{{scope.row.checkTime|date}}</template>
         </el-table-column>
+        <el-table-column fixed="right" label="操作" align="center">
+          <template slot-scope="scope">
+            <el-button
+              @click="handleClickShowDetail(scope.row)"
+              type="text"
+              :size="$store.state.size"
+            >查看</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         background
@@ -57,6 +66,28 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       ></el-pagination>
+
+      <!-- 选择资产弹窗 -->
+      <el-dialog title="选择资产" :visible.sync="checkDetailDialogVisible" width="50%" append-to-body>
+        
+        <el-table
+          :data="checkDetail"
+          border
+          style="width: 100%;margin:10px 0;"
+        >
+          <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
+          <el-table-column align="center" prop="checkStatus" label="盘点状态">
+            <template slot-scope="scope">
+              <span v-if="!scope.row.checkStatus" style="color:red">未盘点</span>
+              <span v-else>已盘点</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span  slot="footer" class="dialog-footer">
+          <el-button :size="$store.state.size" @click="checkDetailDialogVisible = false">关闭</el-button>
+        </span>
+      </el-dialog>
+
     </el-card>  
   </div>
 </template>
@@ -86,12 +117,11 @@ export default {
         {label:'维修',value:4},
         {label:'报废',value:5}
       ],
-      addDialogTableVisible: false,
-      editDialogTableVisible: false,
+      checkDetailDialogVisible: false,
       showModel: false,
       addRegisterData: {},
       searchForm: {},
-      selectedRows: [],
+      checkDetail: [],
       registerData: [],
       pageSize: 10,
       currentPage: 1,
@@ -107,6 +137,19 @@ export default {
     },
     changeOrganId(organId) {
       this.searchForm.organId = organId;
+    },
+    handleClickShowDetail(data){
+      let alreadyCheckAssetIds=data.alreadyCheckAssets.split(",")
+      console.log(alreadyCheckAssetIds)
+      let _self=this
+      this.$api.get("/asset/list?ids="+data.needCheckAssets).then(res =>{
+        if(res.code==0){
+          _self.checkDetail =res.data.result
+          _self.checkDetail = _self.checkDetail.map(asset=>{return {name:asset.name+"["+asset.code+"]",checkStatus:alreadyCheckAssetIds.indexOf(String(asset.id))>-1}});
+          console.log(_self.checkDetail)
+        }
+      });
+      this.checkDetailDialogVisible=true;
     },
     load() {
       let _self = this;

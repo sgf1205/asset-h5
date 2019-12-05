@@ -139,6 +139,7 @@ export default {
           _self.totalSize = res.data.totalSize;
           
           _self.registerData.forEach(rd=>{_self.codeStyle[rd.id]=false})
+          _self.scanAssets=[]
         }
       });
     },
@@ -217,7 +218,7 @@ export default {
         if(_self.alreadySave)
           return
         if (event.keyCode != 13) {
-          console.log(event.keyCode)
+          //console.log(event.keyCode)
           if (event.keyCode >= 48 && event.keyCode <= 122 ) {
              var bizCode = String.fromCharCode(event.keyCode);
               b = b + bizCode;

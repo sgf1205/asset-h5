@@ -22,13 +22,13 @@
       <el-table-column fixed type="selection" width="55"></el-table-column>
       <el-table-column align="center" prop="name" label="资产名称"></el-table-column>
       <el-table-column align="center" prop="code" label="资产编码"></el-table-column>
-      <el-table-column prop="classesName" label="资产类别"></el-table-column>
-      <el-table-column prop="specification" label="品牌型号"></el-table-column>
-      <el-table-column prop="source" label="资产来源"></el-table-column>
-      <el-table-column prop="money" label="单价">
+      <el-table-column align="center" prop="classesName" label="资产类别"></el-table-column>
+      <el-table-column align="center" prop="specification" label="品牌型号"></el-table-column>
+      <el-table-column align="center" prop="source" label="资产来源"></el-table-column>
+      <el-table-column align="center" prop="money" label="单价">
         <template slot-scope="scope">{{scope.row.money|currency}}</template>
       </el-table-column>
-      <el-table-column prop="purchaseTime" label="购置时间">
+      <el-table-column align="center" prop="purchaseTime" label="购置时间">
         <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
       </el-table-column>
     </el-table>

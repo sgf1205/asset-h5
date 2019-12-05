@@ -31,7 +31,7 @@
                 style="margin-left:10px;"
                 @command="handleCommand"
               >
-                <i class="el-icon-daochu"></i> 导入/导出
+                <i class="el-icon-daochu"></i> 资产批量导入
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="download">下载导入模板</el-dropdown-item>
                   <el-dropdown-item command="import">批量导入资产</el-dropdown-item>
@@ -61,22 +61,22 @@
                 <da-assets-status :status="scope.row.status"></da-assets-status>
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="name" label="资产名称" width="200"></el-table-column>
-            <el-table-column align="center" prop="code" label="资产编码" width="200"></el-table-column>
-            <el-table-column prop="classesName" label="资产类别" width="150"></el-table-column>
-            <el-table-column prop="specification" label="品牌型号" width="100"></el-table-column>
-            <el-table-column prop="life" label="预计使用年限" width="120"></el-table-column>
-            <el-table-column align="center" prop="source" label="资产来源" width="80"></el-table-column>
-            <el-table-column align="center" prop="money" label="单价" width="80">
+            <el-table-column align="center" prop="name" label="资产名称" width="150"></el-table-column>
+            <el-table-column align="center" prop="code" label="资产编码" width="150"></el-table-column>
+            <el-table-column align="center" prop="classesName" label="资产类别" width="150"></el-table-column>
+            <el-table-column align="center" prop="specification" label="品牌型号" width="100"></el-table-column>
+            <el-table-column align="center" prop="life" label="预计使用年限" width="120"></el-table-column>
+            <el-table-column align="center" prop="source" label="资产来源" width="120"></el-table-column>
+            <el-table-column align="center" prop="money" label="单价" width="150">
               <template slot-scope="scope">{{scope.row.money|currency}}</template>
             </el-table-column>
-            <el-table-column prop="purchaseTime" label="购买时间" width="120">
+            <el-table-column align="center" prop="purchaseTime" label="购买时间" width="120">
               <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
             </el-table-column>
-            <el-table-column prop="accountingDate" label="财务记账日期" width="120">
+            <el-table-column align="center" prop="accountingDate" label="财务记账日期" width="120">
               <template slot-scope="scope">{{scope.row.accountingDate|date}}</template>
             </el-table-column>
-            <el-table-column prop="accountingNo" label="财务记账凭证号" width="120"></el-table-column>
+            <el-table-column align="center" prop="accountingNo" label="财务记账凭证号" width="120"></el-table-column>
             <el-table-column align="center" label="操作">
               <template slot-scope="scope">
                 <el-button @click="showRegister(scope.row)" type="text" :size="$store.state.size">查看</el-button>
@@ -279,15 +279,18 @@
     </el-dialog>
 
     <div style="visibility:hidden" ref="printDiv">
-      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='page-break-after:always;'>
+      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='page-break-after:always;margin-top: 2mm'>
         <Tr>
           <td><div :id='"XQ"+idx'></div></td>
           <td>
             <label style='display:block;font-size:8pt'>名称：{{obj.name}}</label>
-            <label style='display:block;font-size:8pt'>类别：{{obj.classesName}}</label>
+            <label style='display:block;font-size:8pt'>品牌型号：{{obj.specification}}</label>
             <label style='display:block;font-size:8pt'>编码：{{obj.code}}</label>
           </td>
         </Tr>
+        <tr>
+          <td colspan="2" align="center">长春市医疗保障局</td>
+        </tr>
       </table>
     </div>
   </div>

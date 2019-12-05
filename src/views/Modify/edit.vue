@@ -30,20 +30,20 @@
             </el-table-column>
             <el-table-column align="center" prop="name" label="资产名称" ></el-table-column>
             <el-table-column align="center" prop="code" label="资产编码" ></el-table-column>
-            <el-table-column prop="classesName" label="资产类别" ></el-table-column>
-            <el-table-column prop="specification" label="品牌型号" ></el-table-column>
-            <el-table-column prop="life" label="预计使用年限" ></el-table-column>
+            <el-table-column align="center" prop="classesName" label="资产类别" ></el-table-column>
+            <el-table-column align="center" prop="specification" label="品牌型号" ></el-table-column>
+            <el-table-column align="center" prop="life" label="预计使用年限" ></el-table-column>
             <el-table-column align="center" prop="source" label="资产来源"></el-table-column>
             <el-table-column align="center" prop="money" label="单价">
               <template slot-scope="scope">{{scope.row.money|currency}}</template>
             </el-table-column>
-            <el-table-column prop="purchaseTime" label="购买时间">
+            <el-table-column align="center" prop="purchaseTime" label="购买时间">
               <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
             </el-table-column>
-            <el-table-column prop="accountingDate" label="财务记账日期" >
+            <el-table-column align="center" prop="accountingDate" label="财务记账日期" >
               <template slot-scope="scope">{{scope.row.accountingDate|date}}</template>
             </el-table-column>
-            <el-table-column prop="accountingNo" label="财务记账凭证号" ></el-table-column>
+            <el-table-column align="center" prop="accountingNo" label="财务记账凭证号" ></el-table-column>
             <el-table-column align="center" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editRegister(scope.row)" type="text" :size="$store.state.size">修改</el-button>
@@ -126,16 +126,6 @@
               <el-col :span="8">
                 <el-form-item label="品牌型号" prop="specification">
                   <el-input v-model="addRegisterData.specification" placeholder="品牌型号"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="SN号">
-                  <el-input v-model="addRegisterData.sn" placeholder="SN号"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="计量单位">
-                  <el-input v-model="addRegisterData.metering" placeholder="计量单位"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">

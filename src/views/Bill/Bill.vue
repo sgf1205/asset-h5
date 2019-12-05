@@ -108,7 +108,7 @@
         <el-table-column align="center" prop="code" label="资产编码" width="240"></el-table-column>
         <el-table-column align="center" prop="classesName" label="资产类别" width="150"></el-table-column>
         <el-table-column align="center" prop="source" label="资产来源" width="120">
-          <template slot-scope="scope">{{scope.row.registerTime|date}}</template>
+          <template slot-scope="scope">{{scope.row.source}}</template>
         </el-table-column>
         <el-table-column align="center" prop="organName" label="所属部门" width="120"></el-table-column>
         <el-table-column align="center" prop="usingOrganName" label="当前所在部门" width="200"></el-table-column>

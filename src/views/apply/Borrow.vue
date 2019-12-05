@@ -157,7 +157,7 @@
                 <el-table-column align="center" prop="purchaseTime" label="购置时间">
                   <template slot-scope="scope">{{scope.row.purchaseTime|date}}</template>
                 </el-table-column>
-                <el-table-column prop="accountingDate" label="财务记账日期">
+                <el-table-column align="center" prop="accountingDate" label="财务记账日期">
                   <template slot-scope="scope">{{scope.row.accountingDate|date}}</template>
                 </el-table-column>
               </el-table>
