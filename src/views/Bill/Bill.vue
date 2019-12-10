@@ -11,7 +11,7 @@
       >
         <el-row>
           <el-col :span="6">
-            <el-form-item label="登记部门">
+            <el-form-item label="所属部门">
               <organ-select :v-model="searchForm.registerOrganId" @changeId="changeRegisterId"></organ-select>
             </el-form-item>
           </el-col>

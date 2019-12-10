@@ -279,17 +279,21 @@
     </el-dialog>
 
     <div style="visibility:hidden" ref="printDiv">
-      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='page-break-after:always;margin-top: 2mm'>
+      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='border-collapse:collapse;page-break-after:always;margin-top: 2mm;'>
         <Tr>
-          <td><div :id='"XQ"+idx'></div></td>
-          <td>
-            <label style='display:block;font-size:8pt'>名称：{{obj.name}}</label>
-            <label style='display:block;font-size:8pt'>品牌型号：{{obj.specification}}</label>
-            <label style='display:block;font-size:8pt'>编码：{{obj.code}}</label>
-          </td>
+          <td width=50%  rowspan="4"><div :id='"XQ"+idx'></div></td>
+        </Tr>
+        <Tr>
+          <td align="center">名称<br>{{obj.name}}</td>
         </Tr>
         <tr>
-          <td colspan="2" align="center">长春市医疗保障局</td>
+          <td align="center">品牌型号<br>{{obj.specification}}</td>
+        </tr>
+        <tr>
+          <td align="center">编码<br>{{obj.code}}</td>
+        </tr>
+        <tr>
+          <td colspan="2" align="center" style="font-size:12pt;font-weight:bold">长春市医疗保障局</td>
         </tr>
       </table>
     </div>
@@ -480,6 +484,7 @@ export default {
             //mWindow.document.write('@page :left{margin-left:2mm}');
            // mWindow.document.write('@page :right{margin-left:2mm}');
             //mWindow.document.write('nav,aside{display:none}');
+            mWindow.document.write('table,th, td {border: 1px solid black;font-size:9pt;}')
             mWindow.document.write('@media print {');
             mWindow.document.write('nav,aside{display:none}')
             mWindow.document.write('@page {size: 40mm 30mm;margin: 2mm;}')
