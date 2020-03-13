@@ -284,13 +284,13 @@
           <td width=50%  rowspan="4" align="center"><div :id='"XQ"+idx'></div></td>
         </Tr>
         <Tr>
-          <td align="center">名称<br>{{obj.name}}</td>
+          <td align="center">资产名称<br>{{obj.name}}</td>
         </Tr>
         <tr>
           <td align="center">品牌型号<br>{{obj.specification}}</td>
         </tr>
         <tr>
-          <td align="center">编码<br>{{obj.code}}</td>
+          <td align="center">资产编码<br>{{obj.code}}</td>
         </tr>
         <tr>
           <td colspan="2" align="center" style="font-size:12pt;font-weight:bold">长春市医疗保障局</td>

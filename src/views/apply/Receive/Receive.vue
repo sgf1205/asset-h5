@@ -45,8 +45,8 @@
           <da-assets-status :status="scope.row.status"></da-assets-status>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="领用时间" align="center">
-        <template slot-scope="scope">{{scope.row.createTime|date}}</template>
+      <el-table-column prop="applyTime" label="领用时间" align="center">
+        <template slot-scope="scope">{{scope.row.applyTime|date}}</template>
       </el-table-column>
       <el-table-column prop="organ.name" label="领用部门"  align="center"></el-table-column>
       <el-table-column prop="applyUser" label="领用人"  align="center"></el-table-column>
