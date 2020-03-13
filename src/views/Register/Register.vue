@@ -279,9 +279,9 @@
     </el-dialog>
 
     <div style="visibility:hidden" ref="printDiv">
-      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='border-collapse:collapse;page-break-after:always;margin-top: 2mm;'>
+      <table v-for="(obj,idx) in printList" v-bind:key="idx"  style='border-collapse:collapse;page-break-after:always;margin-top: 2mm;' width="100%">
         <Tr>
-          <td width=50%  rowspan="4"><div :id='"XQ"+idx'></div></td>
+          <td width=50%  rowspan="4" align="center"><div :id='"XQ"+idx'></div></td>
         </Tr>
         <Tr>
           <td align="center">名称<br>{{obj.name}}</td>
@@ -468,8 +468,8 @@ export default {
           let contentStr = this.selectedRows[j].code; //二维码内容
           let qrcode = new QRCode(document.getElementById("XQ" + j), {
             text: contentStr,
-            width: 75,
-            height: 75,
+            width: 90,
+            height: 90,
             colorDark: "#000000",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
@@ -487,7 +487,7 @@ export default {
             mWindow.document.write('table,th, td {border: 1px solid black;font-size:9pt;}')
             mWindow.document.write('@media print {');
             mWindow.document.write('nav,aside{display:none}')
-            mWindow.document.write('@page {size: 40mm 30mm;margin: 2mm;}')
+            mWindow.document.write('@page {margin: 2mm;}')
             mWindow.document.write('}')
             mWindow.document.write('</style><body>');
             mWindow.document.write(_this.$refs.printDiv.innerHTML);
