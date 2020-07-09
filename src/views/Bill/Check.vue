@@ -127,7 +127,7 @@ export default {
       let _self=this;
       _self.clickNode=node;
       let searchForm={}
-      searchForm.pageSize=100;
+      searchForm.pageSize=1000;
       searchForm.currentPage=1;
       searchForm.usingOrganId=node.id
       _self.$api
